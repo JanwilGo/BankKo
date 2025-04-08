@@ -28,7 +28,7 @@ def login():
         if user and user[3] == password:  # Assuming password is in the 4th column (index 3)
             messagebox.showinfo("Login Success", "Welcome to the Banking System!")
             root.destroy()  # Close login window
-            dashboard.open_dashboard()  # Open dashboard
+            dashboard.open_dashboard(user[1])  # Pass user's name (assuming it's in column index 1)
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
     except mysql.connector.Error as err:
@@ -37,25 +37,74 @@ def login():
         cursor.close()
         conn.close()
 
+# Function to handle signup
+def signup():
+    messagebox.showinfo("Signup", "Redirecting to signup window...")
+    root.destroy()
+    import signup  # You should have a signup.py file
+
 # Initialize the main Tkinter window
 root = tk.Tk()
-root.title("Banking System Login")
-root.geometry("350x250")
+root.title("BankKo Login")
+root.geometry("400x300")
 root.resizable(False, False)
 
-# Username Label and Entry
-tk.Label(root, text="Username (Email):", font=("Arial", 12)).pack(pady=5)
-entry_username = tk.Entry(root, font=("Arial", 12))
-entry_username.pack(pady=5)
+# Header Section
+header = tk.Frame(root, bg="#2f80ed", padx=20, pady=15)
+header.pack(fill=tk.X)
 
-# Password Label and Entry
-tk.Label(root, text="Password:", font=("Arial", 12)).pack(pady=5)
-entry_password = tk.Entry(root, show="*", font=("Arial", 12))
-entry_password.pack(pady=5)
+header_label = tk.Label(
+    header,
+    text="Welcome to BankKo",
+    font=("Arial", 16, "bold"),
+    fg="white",
+    bg="#2f80ed"
+)
+header_label.pack()
 
-# Login Button
-btn_login = tk.Button(root, text="Login", font=("Arial", 12, "bold"), bg="#3399ff", fg="white", command=login)
-btn_login.pack(pady=10)
+# Content Section
+content = tk.Frame(root, bg="#f0f2f5", padx=20, pady=20)
+content.pack(fill=tk.BOTH, expand=True)
+
+# Username
+tk.Label(content, text="Username (Email):", font=("Arial", 12), bg="#f0f2f5").pack(pady=5, anchor="w")
+entry_username = tk.Entry(content, font=("Arial", 12))
+entry_username.pack(pady=5, fill=tk.X)
+
+# Password
+tk.Label(content, text="Password:", font=("Arial", 12), bg="#f0f2f5").pack(pady=5, anchor="w")
+entry_password = tk.Entry(content, show="*", font=("Arial", 12))
+entry_password.pack(pady=5, fill=tk.X)
+
+# Buttons Frame
+button_frame = tk.Frame(content, bg="#f0f2f5")
+button_frame.pack(pady=15, fill=tk.X)
+
+btn_login = tk.Button(
+    button_frame,
+    text="Login",
+    font=("Arial", 12, "bold"),
+    bg="#2f80ed",
+    fg="white",
+    padx=10,
+    pady=8,
+    relief=tk.FLAT,
+    command=login
+)
+btn_login.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
+
+btn_signup = tk.Button(
+    button_frame,
+    text="Sign Up",
+    font=("Arial", 12, "bold"),
+    bg="#4CAF50",
+    fg="white",
+    padx=10,
+    pady=8,
+    relief=tk.FLAT,
+    command=signup
+)
+btn_signup.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
 
 # Run Tkinter main loop
 root.mainloop()
