@@ -7,9 +7,9 @@ import dashboard  # Import the dashboard module
 def create_connection():
     return mysql.connector.connect(
         host="sql12.freesqldatabase.com",
-        user="sql12770916",
-        password="yvZr32MFBS",
-        database="sql12770916",
+        user="sql12773881",
+        password="isUcpBumwQ",
+        database="sql12773881",
         port=3306
     )
 
@@ -25,10 +25,10 @@ def login():
         cursor.execute("SELECT * FROM users WHERE email = %s", (username,))
         user = cursor.fetchone()
 
-        if user and user[3] == password:  # Assuming password is in the 4th column (index 3)
+        if user and user[5] == password:  # Assuming password is in the 6th column (index 5)
             messagebox.showinfo("Login Success", "Welcome to the Banking System!")
             root.destroy()  # Close login window
-            dashboard.open_dashboard(user[1])  # Pass user's name (assuming it's in column index 1)
+            dashboard.open_dashboard(user[1], user[0])  # Pass first name and user_id (assuming user_id is in index 0)
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
     except mysql.connector.Error as err:
@@ -96,7 +96,7 @@ btn_login.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
 btn_signup = tk.Button(
     button_frame,
     text="Sign Up",
-    font=("Arial", 12, "bold"),
+    font=("Helvetica", 12, "bold"),
     bg="#4CAF50",
     fg="white",
     padx=10,

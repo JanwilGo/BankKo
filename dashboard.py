@@ -1,28 +1,106 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import messagebox
+import mysql.connector
 
 # Function to handle logout
 def logout(dashboard_window):
     dashboard_window.destroy()
-    import login
+    import login  # Ensure login module exists for proper navigation
+
+# Function to handle the deposit
+def deposit_action(amount, user_id, balance_label):
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            messagebox.showerror("Error", "Deposit amount must be positive.")
+            return
+        
+        conn = mysql.connector.connect(
+            host="sql12.freesqldatabase.com",
+            user="sql12773881",
+            password="isUcpBumwQ",
+            database="sql12773881",
+            port=3306
+        )
+        cursor = conn.cursor()
+
+        # Update the user's balance
+        cursor.execute("UPDATE `users` SET `balance` = `balance` + %s WHERE `user_id` = %s", (amount, user_id))
+        conn.commit()
+
+        # Fetch the new balance to update the UI
+        cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
+        new_balance = cursor.fetchone()[0]
+
+        balance_label["text"] = f"₱{new_balance:,.2f}"
+        messagebox.showinfo("Success", f"Successfully deposited ₱{amount:,.2f}")
+    except ValueError:
+        messagebox.showerror("Error", "Invalid amount entered. Please enter a valid number.")
+    except mysql.connector.Error as err:
+        messagebox.showerror("Database Error", f"Error: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+# Function to handle the withdrawal
+def withdraw_action(amount, user_id, balance_label):
+    try:
+        amount = float(amount)
+        if amount <= 0:
+            messagebox.showerror("Error", "Withdrawal amount must be positive.")
+            return
+
+        conn = mysql.connector.connect(
+            host="sql12.freesqldatabase.com",
+            user="sql12773881",
+            password="isUcpBumwQ",
+            database="sql12773881",
+            port=3306
+        )
+        cursor = conn.cursor()
+
+        # Check if the user has sufficient balance
+        cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
+        current_balance = cursor.fetchone()[0]
+
+        if current_balance < amount:
+            messagebox.showerror("Error", "Insufficient funds.")
+        else:
+            # Update the user's balance
+            cursor.execute("UPDATE `users` SET `balance` = `balance` - %s WHERE `user_id` = %s", (amount, user_id))
+            conn.commit()
+
+            # Fetch the new balance to update the UI
+            cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
+            new_balance = cursor.fetchone()[0]
+
+            balance_label["text"] = f"₱{new_balance:,.2f}"
+            messagebox.showinfo("Success", f"Successfully withdrew ₱{amount:,.2f}")
+    except ValueError:
+        messagebox.showerror("Error", "Invalid amount entered. Please enter a valid number.")
+    except mysql.connector.Error as err:
+        messagebox.showerror("Database Error", f"Error: {err}")
+    finally:
+        cursor.close()
+        conn.close()
 
 # Function to open the dashboard with user's name
-def open_dashboard(full_name):
+def open_dashboard(first_name, user_id):
     dashboard_window = tk.Tk()
     dashboard_window.title("Banking System Dashboard")
     dashboard_window.geometry("600x500")
     dashboard_window.resizable(False, False)
 
     # Header Section
-    header = tk.Frame(dashboard_window, bg="#2f80ed", padx=20, pady=15)
+    header = tk.Frame(dashboard_window, bg="#FFFFFF", padx=20, pady=15)
     header.pack(fill=tk.X)
 
     welcome_label = tk.Label(
         header,
-        text=f"Welcome, {full_name}",
+        text=f"Welcome, {first_name}",
         font=("Arial", 20, "bold"),
-        fg="white",
-        bg="#2f80ed"
+        fg="#2f80ed",
+        bg="#FFFFFF"
     )
     welcome_label.pack(side=tk.LEFT)
 
@@ -30,8 +108,8 @@ def open_dashboard(full_name):
         header,
         text="Log Out",
         command=lambda: logout(dashboard_window),
-        bg="white",
-        fg="#2f80ed",
+        bg="#2f80ed",
+        fg="white",
         font=("Arial", 10, "bold"),
         relief=tk.FLAT,
         bd=0,
@@ -81,8 +159,8 @@ def open_dashboard(full_name):
     deposit_button = tk.Button(
         button_frame,
         text="Deposit",
-        command=lambda: print("Deposit Button Pressed"),
-        bg="#4CAF50",
+        command=lambda: open_deposit_window(user_id, balance_label),
+        bg="#2f80ed",
         fg="white",
         font=("Arial", 16, "bold"),
         relief=tk.FLAT,
@@ -97,8 +175,8 @@ def open_dashboard(full_name):
     withdraw_button = tk.Button(
         button_frame,
         text="Withdraw",
-        command=lambda: print("Withdraw Button Pressed"),
-        bg="#F44336",
+        command=lambda: open_withdraw_window(user_id, balance_label),
+        bg="#2f80ed",
         fg="white",
         font=("Arial", 16, "bold"),
         relief=tk.FLAT,
@@ -109,12 +187,12 @@ def open_dashboard(full_name):
     )
     withdraw_button.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
 
-    # View Transaction History Button
+    # Transaction History Button (No functionality yet)
     history_button = tk.Button(
         button_frame,
         text="Transaction History",
-        command=lambda: print("View History Button Pressed"),
-        bg="#2196F3",
+        command=lambda: print("Transaction History Button Pressed"),
+        bg="#2f80ed",
         fg="white",
         font=("Arial", 16, "bold"),
         relief=tk.FLAT,
@@ -125,24 +203,48 @@ def open_dashboard(full_name):
     )
     history_button.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
 
-    # Settings Button
-    settings_button = tk.Button(
-        button_frame,
-        text="Settings",
-        command=lambda: print("Settings Button Pressed"),
-        bg="#FF9800",
-        fg="white",
-        font=("Arial", 16, "bold"),
-        relief=tk.FLAT,
-        bd=0,
-        padx=20,
-        pady=15,
-        cursor="hand2"
-    )
-    settings_button.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
-
     dashboard_window.mainloop()
+
+# Function to open deposit window
+def open_deposit_window(user_id, balance_label):
+    deposit_window = tk.Toplevel()
+    deposit_window.title("Deposit Money")
+    deposit_window.geometry("400x300")
+
+    amount_label = tk.Label(deposit_window, text="Amount to Deposit:", font=("Arial", 14))
+    amount_label.pack(pady=10)
+
+    amount_entry = tk.Entry(deposit_window, font=("Arial", 14))
+    amount_entry.pack(pady=10)
+
+    def handle_deposit():
+        amount = amount_entry.get()
+        deposit_action(amount, user_id, balance_label)
+        deposit_window.destroy()
+
+    deposit_button = tk.Button(deposit_window, text="Deposit", command=handle_deposit, bg="#4CAF50", fg="white", font=("Arial", 16, "bold"))
+    deposit_button.pack(pady=20)
+
+# Function to open withdraw window
+def open_withdraw_window(user_id, balance_label):
+    withdraw_window = tk.Toplevel()
+    withdraw_window.title("Withdraw Money")
+    withdraw_window.geometry("400x300")
+
+    amount_label = tk.Label(withdraw_window, text="Amount to Withdraw:", font=("Arial", 14))
+    amount_label.pack(pady=10)
+
+    amount_entry = tk.Entry(withdraw_window, font=("Arial", 14))
+    amount_entry.pack(pady=10)
+
+    def handle_withdraw():
+        amount = amount_entry.get()
+        withdraw_action(amount, user_id, balance_label)
+        withdraw_window.destroy()
+
+    withdraw_button = tk.Button(withdraw_window, text="Withdraw", command=handle_withdraw, bg="#F44336", fg="white", font=("Arial", 16, "bold"))
+    withdraw_button.pack(pady=20)
 
 # For testing
 if __name__ == "__main__":
-    open_dashboard("janwil")
+    open_dashboard("janwil", 1)  # Replace with actual user_id
