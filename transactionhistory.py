@@ -45,7 +45,7 @@ def show_transaction_history(user_id, back_func=None):
         table_box = tk.Frame(table_outer, bg="white", bd=1, relief=tk.SOLID)
         table_box.pack(fill=tk.BOTH, expand=True)
         
-        tree = ttk.Treeview(table_box, columns=("ID", "Type", "Amount", "Sender", "Recipient", "Date"), show="headings")
+        tree = ttk.Treeview(table_box, columns=("ID", "Type", "Direction", "Amount", "Sender", "Recipient", "Date"), show="headings")
         vsb = ttk.Scrollbar(table_box, orient="vertical", command=tree.yview)
         hsb = ttk.Scrollbar(table_box, orient="horizontal", command=tree.xview)
         tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
@@ -60,13 +60,14 @@ def show_transaction_history(user_id, back_func=None):
         # Configure columns
         tree.heading("ID", text="TXN ID")
         tree.heading("Type", text="Type")
+        tree.heading("Direction", text="Direction")
         tree.heading("Amount", text="Amount (₱)")
         tree.heading("Sender", text="Sender")
         tree.heading("Recipient", text="Recipient")
         tree.heading("Date", text="Date/Time")
         
-        for col in ("ID", "Type", "Amount", "Sender", "Recipient", "Date"):
-            tree.column(col, anchor="center", width=160)
+        for col in ("ID", "Type", "Direction", "Amount", "Sender", "Recipient", "Date"):
+            tree.column(col, anchor="center", width=140)
         
         # Get transactions with error handling
         try:
@@ -86,50 +87,46 @@ def show_transaction_history(user_id, back_func=None):
                 pass
             else:
                 for i, txn in enumerate(transactions):
-                    # Format type for display
                     txn_type = txn['type']
                     if txn_type.lower() == 'withdrawal':
                         display_type = 'WITHDRAW'
+                        direction = ''
                     elif txn_type.lower() == 'deposit':
                         display_type = 'DEPOSIT'
+                        direction = ''
                     elif txn_type.lower() == 'transfer':
                         display_type = 'TRANSFER'
-                    else:
-                        display_type = txn_type.upper()
-                    
-                    # Get sender and recipient emails for transfer, else blank
-                    sender = '-'
-                    recipient = '-'
-                    if txn_type.lower() == 'transfer':
-                        # If the user is the sender
                         if txn['user_id'] == user_id:
-                            # Show recipient
+                            direction = 'Sent'
+                            sender = '(You)'
+                            recipient = '-'
                             if txn.get('recipient_id'):
                                 cursor.execute("SELECT email FROM users WHERE user_id = %s", (txn['recipient_id'],))
                                 rec = cursor.fetchone()
                                 if rec:
                                     recipient = rec['email']
-                            # Show sender as self
-                            cursor.execute("SELECT email FROM users WHERE user_id = %s", (txn['user_id'],))
-                            snd = cursor.fetchone()
-                            if snd:
-                                sender = snd['email']
-                        # If the user is the recipient
                         elif txn.get('recipient_id') == user_id:
-                            # Show sender
+                            direction = 'Received'
+                            recipient = '(You)'
+                            sender = '-'
                             cursor.execute("SELECT email FROM users WHERE user_id = %s", (txn['user_id'],))
                             snd = cursor.fetchone()
                             if snd:
                                 sender = snd['email']
-                            # Show recipient as self
-                            cursor.execute("SELECT email FROM users WHERE user_id = %s", (txn['recipient_id'],))
-                            rec = cursor.fetchone()
-                            if rec:
-                                recipient = rec['email']
+                        else:
+                            direction = ''
+                            sender = '-'
+                            recipient = '-'
+                    else:
+                        display_type = txn_type.upper()
+                        direction = ''
+                        sender = '-'
+                        recipient = '-'
                     tag = 'evenrow' if i % 2 == 0 else 'oddrow'
                     tree.insert("", "end", values=(
                         txn['transaction_id'],
                         display_type,
+                        direction,
                         f"{txn['amount']:,.2f}",
                         sender,
                         recipient,

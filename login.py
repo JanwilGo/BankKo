@@ -107,5 +107,19 @@ btn_signup = tk.Button(
 )
 btn_signup.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
 
+btn_exit = tk.Button(
+    button_frame,
+    text="Exit",
+    font=("Arial", 12, "bold"),
+    bg="#F44336",
+    fg="white",
+    padx=10,
+    pady=8,
+    relief=tk.FLAT,
+    command=root.destroy
+)
+btn_exit.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
+
 # Run Tkinter main loop
 root.mainloop()
+root.protocol("WM_DELETE_WINDOW", root.destroy)

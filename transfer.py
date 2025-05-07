@@ -38,18 +38,13 @@ def transfer_funds(sender_id, recipient_email, amount, balance_label):
         # Perform transfer
         cursor.execute("UPDATE users SET balance = balance - %s WHERE user_id = %s", (amount, sender_id))
         cursor.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (amount, recipient_id))
-        # Log transactions
+        # Log transaction (only once, for sender)
         cursor.execute("""
             INSERT INTO transactions (user_id, type, amount, recipient_id) VALUES (%s, 'transfer', %s, %s)
         """, (sender_id, amount, recipient_id))
-        cursor.execute("""
-            INSERT INTO transactions (user_id, type, amount, recipient_id) VALUES (%s, 'transfer', %s, %s)
-        """, (recipient_id, amount, sender_id))
         conn.commit()
         # Update balance label
-        cursor.execute("SELECT balance FROM users WHERE user_id = %s", (sender_id,))
-        new_balance = cursor.fetchone()[0]
-        balance_label["text"] = f"₱{new_balance:,.2f}"
+        # balance_label["text"] = f"₱{new_balance:,.2f}"
     except ValueError:
         messagebox.showerror("Error", "Invalid amount entered.")
     except mysql.connector.Error as err:
@@ -77,7 +72,6 @@ def open_transfer_window(user_id, balance_label, first_name, back_func):
         amount = amount_entry.get().strip()
         transfer_funds(user_id, recipient_email, amount, balance_label)
         transfer_window.destroy()
-        from dashboard import open_dashboard
-        open_dashboard(first_name, user_id)
+        back_func()
     transfer_btn = tk.Button(transfer_window, text="Transfer", command=handle_transfer, bg="#2f80ed", fg="white", font=("Arial", 16, "bold"))
     transfer_btn.pack(pady=20)

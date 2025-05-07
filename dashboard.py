@@ -12,13 +12,12 @@ def logout(dashboard_window):
     login.root.deiconify()
 
 # Function to handle the deposit
-def deposit_action(amount, user_id, balance_label):
+def deposit_action(amount, user_id):
     try:
         amount = float(amount)
         if amount <= 0:
             messagebox.showerror("Error", "Deposit amount must be positive.")
             return
-        
         conn = mysql.connector.connect(
             host="sql12.freesqldatabase.com",
             user="sql12773881",
@@ -27,23 +26,13 @@ def deposit_action(amount, user_id, balance_label):
             port=3306
         )
         cursor = conn.cursor()
-
-        # Update the user's balance
         cursor.execute("UPDATE `users` SET `balance` = `balance` + %s WHERE `user_id` = %s", (amount, user_id))
         conn.commit()
-
-        # Log the transaction
         cursor.execute(
             "INSERT INTO transactions (user_id, type, amount) VALUES (%s, %s, %s)",
             (user_id, 'deposit', amount)
         )
         conn.commit()
-
-        # Fetch the new balance to update the UI
-        cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
-        new_balance = cursor.fetchone()[0]
-
-        balance_label["text"] = f"₱{new_balance:,.2f}"
     except ValueError:
         messagebox.showerror("Error", "Invalid amount entered. Please enter a valid number.")
     except mysql.connector.Error as err:
@@ -53,13 +42,12 @@ def deposit_action(amount, user_id, balance_label):
         conn.close()
 
 # Function to handle the withdrawal
-def withdraw_action(amount, user_id, balance_label):
+def withdraw_action(amount, user_id):
     try:
         amount = float(amount)
         if amount <= 0:
             messagebox.showerror("Error", "Withdrawal amount must be positive.")
             return
-
         conn = mysql.connector.connect(
             host="sql12.freesqldatabase.com",
             user="sql12773881",
@@ -68,30 +56,18 @@ def withdraw_action(amount, user_id, balance_label):
             port=3306
         )
         cursor = conn.cursor()
-
-        # Check if the user has sufficient balance
         cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
         current_balance = cursor.fetchone()[0]
-
         if current_balance < amount:
             messagebox.showerror("Error", "Insufficient funds.")
         else:
-            # Update the user's balance
             cursor.execute("UPDATE `users` SET `balance` = `balance` - %s WHERE `user_id` = %s", (amount, user_id))
             conn.commit()
-
-            # Log the transaction
             cursor.execute(
                 "INSERT INTO transactions (user_id, type, amount) VALUES (%s, %s, %s)",
                 (user_id, 'withdrawal', amount)
             )
             conn.commit()
-
-            # Fetch the new balance to update the UI
-            cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
-            new_balance = cursor.fetchone()[0]
-
-            balance_label["text"] = f"₱{new_balance:,.2f}"
     except ValueError:
         messagebox.showerror("Error", "Invalid amount entered. Please enter a valid number.")
     except mysql.connector.Error as err:
@@ -265,19 +241,15 @@ def open_deposit_window(user_id, balance_label, first_name, back_func):
     deposit_window.geometry("400x300")
     back_btn = tk.Button(deposit_window, text="Back", command=lambda: [deposit_window.destroy(), back_func()], bg="#2f80ed", fg="white", font=("Arial", 10, "bold"))
     back_btn.pack(anchor="nw", padx=10, pady=10)
-
     amount_label = tk.Label(deposit_window, text="Amount to Deposit:", font=("Arial", 14))
     amount_label.pack(pady=10)
-
     amount_entry = tk.Entry(deposit_window, font=("Arial", 14))
     amount_entry.pack(pady=10)
-
     def handle_deposit():
         amount = amount_entry.get()
-        deposit_action(amount, user_id, balance_label)
+        deposit_action(amount, user_id)
         deposit_window.destroy()
-        open_dashboard(first_name, user_id)
-
+        back_func()
     deposit_button = tk.Button(deposit_window, text="Deposit", command=handle_deposit, bg="#4CAF50", fg="white", font=("Arial", 16, "bold"))
     deposit_button.pack(pady=20)
 
@@ -288,19 +260,15 @@ def open_withdraw_window(user_id, balance_label, first_name, back_func):
     withdraw_window.geometry("400x300")
     back_btn = tk.Button(withdraw_window, text="Back", command=lambda: [withdraw_window.destroy(), back_func()], bg="#2f80ed", fg="white", font=("Arial", 10, "bold"))
     back_btn.pack(anchor="nw", padx=10, pady=10)
-
     amount_label = tk.Label(withdraw_window, text="Amount to Withdraw:", font=("Arial", 14))
     amount_label.pack(pady=10)
-
     amount_entry = tk.Entry(withdraw_window, font=("Arial", 14))
     amount_entry.pack(pady=10)
-
     def handle_withdraw():
         amount = amount_entry.get()
-        withdraw_action(amount, user_id, balance_label)
+        withdraw_action(amount, user_id)
         withdraw_window.destroy()
-        open_dashboard(first_name, user_id)
-
+        back_func()
     withdraw_button = tk.Button(withdraw_window, text="Withdraw", command=handle_withdraw, bg="#F44336", fg="white", font=("Arial", 16, "bold"))
     withdraw_button.pack(pady=20)
 

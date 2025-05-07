@@ -3,6 +3,7 @@ from tkinter import messagebox
 import mysql.connector
 import re
 import bcrypt
+import subprocess, sys
 
 # DB connection
 def create_connection():
@@ -62,7 +63,7 @@ def register():
         conn.commit()
         messagebox.showinfo("Success", "Account created successfully!")
         root.destroy()
-        import login  # After success, go back to the login page
+        subprocess.Popen([sys.executable, "login.py"])
 
     except mysql.connector.Error as err:
         messagebox.showerror("Database Error", f"Error: {err}")
@@ -78,7 +79,7 @@ def go_to_login():
 # UI setup
 root = tk.Tk()
 root.title("BankKo - Create Account")
-root.geometry("500x600")
+root.geometry("600x600")
 root.resizable(True, True)  # Allow resizing the window
 
 # Create a frame for the header
@@ -90,7 +91,7 @@ tk.Label(header_frame, text="Create Your BankKo Account", font=("Arial", 16, "bo
          fg="white", bg="#2f80ed").pack()
 
 # Create a Canvas to hold the content and allow scrolling
-canvas = tk.Canvas(root)
+canvas = tk.Canvas(root, width=600)
 canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 # Add a vertical scrollbar linked to the canvas
@@ -99,24 +100,25 @@ scrollbar.pack(side=tk.RIGHT, fill="y")
 canvas.configure(yscrollcommand=scrollbar.set)
 
 # Create a frame inside the canvas to hold the widgets
-content_frame = tk.Frame(canvas, bg="#f0f2f5", padx=20, pady=20)
-canvas.create_window((0, 0), window=content_frame, anchor="nw")
+content_frame = tk.Frame(canvas, bg="#f0f2f5", padx=20, pady=20, width=600)
+canvas.create_window((0, 0), window=content_frame, anchor="n")
 
 # Update the scroll region of the canvas whenever the content frame is resized
 content_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
 # Label and entry helper function
 def labeled_entry(parent, label, show=None, height=1):
-    label_widget = tk.Label(parent, text=label, font=("Arial", 12), bg="#f0f2f5")
-    label_widget.pack(pady=(10, 0), anchor="w")
-    
+    field_frame = tk.Frame(parent, bg="#f7f7f7", bd=1, relief=tk.SOLID)
+    field_frame.pack(fill=tk.X, pady=6, padx=2, expand=True)
+    label_widget = tk.Label(field_frame, text=label, font=("Arial", 11), bg="#f7f7f7", anchor="w")
+    label_widget.pack(anchor="w", padx=8, pady=(6, 0))
     if height == 1:
-        entry_widget = tk.Entry(parent, font=("Arial", 12), show=show) if show else tk.Entry(parent, font=("Arial", 12))
-        entry_widget.pack(fill=tk.X, pady=5)
+        entry_widget = tk.Entry(field_frame, font=("Arial", 12), show=show, bg="white", relief=tk.FLAT, width=60)
+        entry_widget.pack(padx=8, pady=(2, 8))
         return entry_widget
     else:
-        entry_widget = tk.Text(parent, font=("Arial", 12), height=height)
-        entry_widget.pack(fill=tk.X, pady=5)
+        entry_widget = tk.Text(field_frame, font=("Arial", 12), height=height, bg="white", relief=tk.FLAT, width=60)
+        entry_widget.pack(padx=8, pady=(2, 8))
         return entry_widget
 
 # Call labeled_entry for each field
@@ -139,12 +141,18 @@ login_button = tk.Button(content_frame, text="Already have an account? Login her
                          bg="#f0f2f5", fg="#2f80ed", bd=0, command=go_to_login, cursor="hand2")
 login_button.pack()
 
+# Exit button
+exit_button = tk.Button(content_frame, text="Exit", font=("Arial", 12, "bold"), bg="#F44336", fg="white", command=root.destroy)
+exit_button.pack(pady=10)
+
 # 🔐 Ensure launch from subprocess
 def on_mouse_wheel(event):
     canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 # Bind mouse scroll event to the canvas
 root.bind_all("<MouseWheel>", on_mouse_wheel)
+
+root.protocol("WM_DELETE_WINDOW", root.destroy)
 
 if __name__ == "__main__":
     root.mainloop()

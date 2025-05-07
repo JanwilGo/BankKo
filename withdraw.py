@@ -1,8 +1,7 @@
 import mysql.connector
 from tkinter import messagebox
 
-# Function to handle the withdrawal
-def withdraw_action(amount, user_id, balance_label):
+def withdraw_action(amount, user_id, balance_label=None):
     try:
         amount = float(amount)
         if amount <= 0:
@@ -18,34 +17,34 @@ def withdraw_action(amount, user_id, balance_label):
         )
         cursor = conn.cursor()
 
-        # Check if the user has sufficient balance
-        cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
+        # Get current balance
+        cursor.execute("SELECT balance FROM users WHERE user_id = %s", (user_id,))
         current_balance = cursor.fetchone()[0]
 
         if current_balance < amount:
             messagebox.showerror("Error", "Insufficient funds.")
-        else:
-            # Update the user's balance
-            cursor.execute("UPDATE `users` SET `balance` = `balance` - %s WHERE `user_id` = %s", (amount, user_id))
-            conn.commit()
+            return
 
-            # Log the transaction
-            cursor.execute(
-                "INSERT INTO transactions (user_id, type, amount) VALUES (%s, %s, %s)",
-                (user_id, 'withdrawal', amount)
-            )
-            conn.commit()
+        # Deduct amount
+        cursor.execute("UPDATE users SET balance = balance - %s WHERE user_id = %s", (amount, user_id))
+        conn.commit()
 
-            # Fetch the new balance to update the UI
-            cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
+        # Log to transaction history
+        cursor.execute("INSERT INTO transactions (user_id, type, amount) VALUES (%s, %s, %s)", (user_id, "withdraw", amount))
+        conn.commit()
+
+        # Update balance label if provided
+        if balance_label:
+            cursor.execute("SELECT balance FROM users WHERE user_id = %s", (user_id,))
             new_balance = cursor.fetchone()[0]
-
             balance_label["text"] = f"₱{new_balance:,.2f}"
-            messagebox.showinfo("Success", f"Successfully withdrew ₱{amount:,.2f}")
+
+        messagebox.showinfo("Success", f"Successfully withdrew ₱{amount:,.2f}")
     except ValueError:
-        messagebox.showerror("Error", "Invalid amount entered. Please enter a valid number.")
+        messagebox.showerror("Error", "Please enter a valid number.")
     except mysql.connector.Error as err:
         messagebox.showerror("Database Error", f"Error: {err}")
     finally:
-        cursor.close()
-        conn.close()
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
