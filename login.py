@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 import dashboard  # Import the dashboard module
+import bcrypt
 
 # Function to create a database connection
 def create_connection():
@@ -25,9 +26,9 @@ def login():
         cursor.execute("SELECT * FROM users WHERE email = %s", (username,))
         user = cursor.fetchone()
 
-        if user and user[5] == password:  # Assuming password is in the 6th column (index 5)
-            messagebox.showinfo("Login Success", "Welcome to the Banking System!")
-            root.destroy()  # Close login window
+        if user and bcrypt.checkpw(password.encode('utf-8'), user[5].encode('utf-8')):  # user[5] is password_hash
+            # messagebox.showinfo("Login Success", "Welcome to the Banking System!")
+            root.withdraw()  # Hide login window
             dashboard.open_dashboard(user[1], user[0])  # Pass first name and user_id (assuming user_id is in index 0)
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
@@ -39,8 +40,8 @@ def login():
 
 # Function to handle signup
 def signup():
-    messagebox.showinfo("Signup", "Redirecting to signup window...")
-    root.destroy()
+    # messagebox.showinfo("Signup", "Redirecting to signup window...")
+    root.withdraw()
     import signup  # You should have a signup.py file
 
 # Initialize the main Tkinter window

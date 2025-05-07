@@ -29,6 +29,13 @@ def withdraw_action(amount, user_id, balance_label):
             cursor.execute("UPDATE `users` SET `balance` = `balance` - %s WHERE `user_id` = %s", (amount, user_id))
             conn.commit()
 
+            # Log the transaction
+            cursor.execute(
+                "INSERT INTO transactions (user_id, type, amount) VALUES (%s, %s, %s)",
+                (user_id, 'withdrawal', amount)
+            )
+            conn.commit()
+
             # Fetch the new balance to update the UI
             cursor.execute("SELECT `balance` FROM `users` WHERE `user_id` = %s", (user_id,))
             new_balance = cursor.fetchone()[0]

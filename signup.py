@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
 import re
+import bcrypt
 
 # DB connection
 def create_connection():
@@ -49,11 +50,14 @@ def register():
             messagebox.showerror("Duplicate", "Email or phone already registered.")
             return
 
+        # Hash the password
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
         cursor.execute(""" 
             INSERT INTO users 
             (first_name, middle_initial, family_name, email, password_hash, address, phone_number) 
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (fname, minitial, lname, email, password, address, phone))
+        """, (fname, minitial, lname, email, hashed_pw, address, phone))
 
         conn.commit()
         messagebox.showinfo("Success", "Account created successfully!")
