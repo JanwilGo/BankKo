@@ -44,81 +44,105 @@ def signup():
     root.withdraw()
     import signup  # You should have a signup.py file
 
+# Function to handle button hover effects
+def on_enter(e):
+    e.widget['background'] = '#2c3e50'
+
+def on_leave(e):
+    e.widget['background'] = '#34495e'
+
 # Initialize the main Tkinter window
 root = tk.Tk()
 root.title("BankKo Login")
-root.geometry("400x300")
+root.geometry("400x500")
 root.resizable(False, False)
+root.configure(bg='#ffffff')
+root.overrideredirect(True)  # Remove window header
 
-# Header Section
-header = tk.Frame(root, bg="#2f80ed", padx=20, pady=15)
-header.pack(fill=tk.X)
+# Center the window
+root.update_idletasks()  # Update "requested size" from geometry manager
+width = root.winfo_width()
+height = root.winfo_height()
+x = (root.winfo_screenwidth() // 2) - (width // 2)
+y = (root.winfo_screenheight() // 2) - (height // 2)
+root.geometry(f'{width}x{height}+{x}+{y}')
 
-header_label = tk.Label(
-    header,
-    text="Welcome to BankKo",
-    font=("Arial", 16, "bold"),
-    fg="white",
-    bg="#2f80ed"
-)
-header_label.pack()
+# Create a frame for dragging the window
+title_bar = tk.Frame(root, bg='#34495e', height=30)
+title_bar.pack(fill=tk.X)
+title_bar.bind('<Button-1>', lambda e: root.focus_set())
+title_bar.bind('<B1-Motion>', lambda e: root.geometry(f'+{e.x_root}+{e.y_root}'))
 
-# Content Section
-content = tk.Frame(root, bg="#f0f2f5", padx=20, pady=20)
+# Close button
+close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
+                     bd=0, padx=10, command=root.destroy)
+close_btn.pack(side=tk.RIGHT)
+close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
+
+# Main content frame
+content = tk.Frame(root, bg='#ffffff', padx=40, pady=30)
 content.pack(fill=tk.BOTH, expand=True)
 
+# Logo/Title
+title_label = tk.Label(
+    content,
+    text="BankKo",
+    font=("Helvetica", 24, "bold"),
+    fg="#34495e",
+    bg="#ffffff"
+)
+title_label.pack(pady=(0, 30))
+
 # Username
-tk.Label(content, text="Username (Email):", font=("Arial", 12), bg="#f0f2f5").pack(pady=5, anchor="w")
-entry_username = tk.Entry(content, font=("Arial", 12))
-entry_username.pack(pady=5, fill=tk.X)
+tk.Label(content, text="Email", font=("Helvetica", 10), bg="#ffffff", fg="#7f8c8d").pack(anchor="w")
+entry_username = tk.Entry(content, font=("Helvetica", 12), bd=0, highlightthickness=1,
+                         highlightbackground="#bdc3c7", highlightcolor="#3498db")
+entry_username.pack(pady=(5, 20), fill=tk.X)
 
 # Password
-tk.Label(content, text="Password:", font=("Arial", 12), bg="#f0f2f5").pack(pady=5, anchor="w")
-entry_password = tk.Entry(content, show="*", font=("Arial", 12))
-entry_password.pack(pady=5, fill=tk.X)
+tk.Label(content, text="Password", font=("Helvetica", 10), bg="#ffffff", fg="#7f8c8d").pack(anchor="w")
+entry_password = tk.Entry(content, show="•", font=("Helvetica", 12), bd=0, highlightthickness=1,
+                         highlightbackground="#bdc3c7", highlightcolor="#3498db")
+entry_password.pack(pady=(5, 20), fill=tk.X)
 
 # Buttons Frame
-button_frame = tk.Frame(content, bg="#f0f2f5")
-button_frame.pack(pady=15, fill=tk.X)
+button_frame = tk.Frame(content, bg="#ffffff")
+button_frame.pack(pady=20, fill=tk.X)
 
+# Login button
 btn_login = tk.Button(
     button_frame,
     text="Login",
-    font=("Arial", 12, "bold"),
-    bg="#2f80ed",
+    font=("Helvetica", 12),
+    bg="#34495e",
     fg="white",
-    padx=10,
-    pady=8,
-    relief=tk.FLAT,
+    bd=0,
+    padx=20,
+    pady=10,
+    cursor="hand2",
     command=login
 )
-btn_login.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
+btn_login.pack(fill=tk.X, pady=(0, 10))
+btn_login.bind('<Enter>', on_enter)
+btn_login.bind('<Leave>', on_leave)
 
+# Sign Up button
 btn_signup = tk.Button(
     button_frame,
-    text="Sign Up",
-    font=("Helvetica", 12, "bold"),
-    bg="#4CAF50",
+    text="Create Account",
+    font=("Helvetica", 12),
+    bg="#34495e",
     fg="white",
-    padx=10,
-    pady=8,
-    relief=tk.FLAT,
+    bd=0,
+    padx=20,
+    pady=10,
+    cursor="hand2",
     command=signup
 )
-btn_signup.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
-
-btn_exit = tk.Button(
-    button_frame,
-    text="Exit",
-    font=("Arial", 12, "bold"),
-    bg="#F44336",
-    fg="white",
-    padx=10,
-    pady=8,
-    relief=tk.FLAT,
-    command=root.destroy
-)
-btn_exit.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=5)
+btn_signup.pack(fill=tk.X)
+btn_signup.bind('<Enter>', on_enter)
+btn_signup.bind('<Leave>', on_leave)
 
 # Run Tkinter main loop
 root.mainloop()
