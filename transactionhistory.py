@@ -87,6 +87,8 @@ def show_transaction_history(user_id, back_func=None):
                 pass
             else:
                 for i, txn in enumerate(transactions):
+                    sender = '-'
+                    recipient = '-'
                     txn_type = txn['type']
                     if txn_type.lower() == 'withdrawal':
                         display_type = 'WITHDRAW'
