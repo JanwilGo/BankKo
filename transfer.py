@@ -11,6 +11,22 @@ DB_CONFIG = {
     'port': 3306
 }
 
+# Function to center window on screen
+def center_window(window):
+    window.update_idletasks()
+    width = window.winfo_width()
+    height = window.winfo_height()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
+
+# Function to handle button hover effects
+def on_enter(e):
+    e.widget['background'] = '#2c3e50'
+
+def on_leave(e):
+    e.widget['background'] = '#34495e'
+
 def transfer_funds(sender_id, recipient_email, amount, balance_label):
     try:
         amount = float(amount)
@@ -58,20 +74,95 @@ def transfer_funds(sender_id, recipient_email, amount, balance_label):
 def open_transfer_window(user_id, balance_label, first_name, back_func):
     transfer_window = tk.Toplevel()
     transfer_window.title("Transfer Funds")
-    transfer_window.geometry("400x300")
-    back_btn = tk.Button(transfer_window, text="Back", command=lambda: [transfer_window.destroy(), back_func()], bg="#2f80ed", fg="white", font=("Arial", 10, "bold"))
-    back_btn.pack(anchor="nw", padx=10, pady=10)
-    tk.Label(transfer_window, text="Recipient Email:", font=("Arial", 14)).pack(pady=10)
-    email_entry = tk.Entry(transfer_window, font=("Arial", 14))
-    email_entry.pack(pady=5)
-    tk.Label(transfer_window, text="Amount to Transfer:", font=("Arial", 14)).pack(pady=10)
-    amount_entry = tk.Entry(transfer_window, font=("Arial", 14))
-    amount_entry.pack(pady=5)
-    def handle_transfer():
-        recipient_email = email_entry.get().strip()
-        amount = amount_entry.get().strip()
-        transfer_funds(user_id, recipient_email, amount, balance_label)
-        transfer_window.destroy()
-        back_func()
-    transfer_btn = tk.Button(transfer_window, text="Transfer", command=handle_transfer, bg="#2f80ed", fg="white", font=("Arial", 16, "bold"))
-    transfer_btn.pack(pady=20)
+    transfer_window.geometry("400x500")
+    transfer_window.configure(bg='#ffffff')
+    transfer_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+    center_window(transfer_window)
+
+    # Title bar
+    title_bar = tk.Frame(transfer_window, bg='#34495e', height=30)
+    title_bar.pack(fill=tk.X)
+    title_bar.bind('<Button-1>', lambda e: transfer_window.focus_set())
+    title_bar.bind('<B1-Motion>', lambda e: transfer_window.geometry(f'+{e.x_root}+{e.y_root}'))
+
+    # Close button
+    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
+                         bd=0, padx=10, command=lambda: [transfer_window.destroy(), back_func()])
+    close_btn.pack(side=tk.RIGHT)
+    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
+
+    # Back button
+    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
+                        bd=0, padx=10, command=lambda: [transfer_window.destroy(), back_func()])
+    back_btn.pack(side=tk.LEFT)
+    back_btn.bind('<Enter>', on_enter)
+    back_btn.bind('<Leave>', on_leave)
+
+    # Content
+    content = tk.Frame(transfer_window, bg='#ffffff', padx=40, pady=30)
+    content.pack(fill=tk.BOTH, expand=True)
+
+    # Title
+    tk.Label(
+        content,
+        text="Transfer Money",
+        font=("Helvetica", 24, "bold"),
+        fg="#34495e",
+        bg="#ffffff"
+    ).pack(pady=(0, 30))
+
+    # Recipient Email
+    tk.Label(
+        content,
+        text="Recipient Email",
+        font=("Helvetica", 10),
+        fg="#7f8c8d",
+        bg="#ffffff"
+    ).pack(anchor="w")
+
+    email_entry = tk.Entry(
+        content,
+        font=("Helvetica", 12),
+        bd=0,
+        highlightthickness=1,
+        highlightbackground="#bdc3c7",
+        highlightcolor="#3498db"
+    )
+    email_entry.pack(pady=(5, 20), fill=tk.X)
+
+    # Amount
+    tk.Label(
+        content,
+        text="Amount to Transfer",
+        font=("Helvetica", 10),
+        fg="#7f8c8d",
+        bg="#ffffff"
+    ).pack(anchor="w")
+
+    amount_entry = tk.Entry(
+        content,
+        font=("Helvetica", 12),
+        bd=0,
+        highlightthickness=1,
+        highlightbackground="#bdc3c7",
+        highlightcolor="#3498db"
+    )
+    amount_entry.pack(pady=(5, 20), fill=tk.X)
+
+    # Transfer button
+    transfer_button = tk.Button(
+        content,
+        text="Transfer",
+        command=lambda: [transfer_funds(user_id, email_entry.get().strip(), amount_entry.get().strip(), balance_label), transfer_window.destroy(), back_func()],
+        bg="#34495e",
+        fg="white",
+        font=("Helvetica", 12),
+        bd=0,
+        padx=20,
+        pady=10,
+        cursor="hand2"
+    )
+    transfer_button.pack(fill=tk.X, pady=(20, 0))
+    transfer_button.bind('<Enter>', on_enter)
+    transfer_button.bind('<Leave>', on_leave)

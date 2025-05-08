@@ -83,6 +83,15 @@ def withdraw_action(amount, user_id):
         cursor.close()
         conn.close()
 
+# Function to center window on screen
+def center_window(window):
+    window.update_idletasks()
+    width = window.winfo_width()
+    height = window.winfo_height()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
+
 # Function to open the dashboard with user's name
 def open_dashboard(first_name, user_id):
     dashboard_window = tk.Toplevel()
@@ -90,14 +99,8 @@ def open_dashboard(first_name, user_id):
     dashboard_window.geometry("800x600")
     dashboard_window.resizable(False, False)
     dashboard_window.configure(bg='#ffffff')
-    dashboard_window.overrideredirect(True)
-
-    # Center the window
-    screen_width = dashboard_window.winfo_screenwidth()
-    screen_height = dashboard_window.winfo_screenheight()
-    x = (screen_width - 800) // 2
-    y = (screen_height - 600) // 2
-    dashboard_window.geometry(f"800x600+{x}+{y}")
+    dashboard_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+    center_window(dashboard_window)
 
     # Title bar
     title_bar = tk.Frame(dashboard_window, bg='#34495e', height=30)
@@ -115,7 +118,7 @@ def open_dashboard(first_name, user_id):
     # Logout button
     logout_btn = tk.Button(title_bar, text='Logout', font=('Helvetica', 10), bg='#34495e', fg='white',
                           bd=0, padx=10, command=lambda: logout(dashboard_window))
-    logout_btn.pack(side=tk.RIGHT, padx=10)
+    logout_btn.pack(side=tk.RIGHT, padx=(0, 10))
     logout_btn.bind('<Enter>', on_enter)
     logout_btn.bind('<Leave>', on_leave)
 
@@ -267,14 +270,8 @@ def open_deposit_window(user_id, balance_label, first_name, back_func):
     deposit_window.title("Deposit Money")
     deposit_window.geometry("400x500")
     deposit_window.configure(bg='#ffffff')
-    deposit_window.overrideredirect(True)
-
-    # Center the window
-    screen_width = deposit_window.winfo_screenwidth()
-    screen_height = deposit_window.winfo_screenheight()
-    x = (screen_width - 400) // 2
-    y = (screen_height - 500) // 2
-    deposit_window.geometry(f"400x500+{x}+{y}")
+    deposit_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+    center_window(deposit_window)
 
     # Title bar
     title_bar = tk.Frame(deposit_window, bg='#34495e', height=30)
@@ -352,14 +349,8 @@ def open_withdraw_window(user_id, balance_label, first_name, back_func):
     withdraw_window.title("Withdraw Money")
     withdraw_window.geometry("400x500")
     withdraw_window.configure(bg='#ffffff')
-    withdraw_window.overrideredirect(True)
-
-    # Center the window
-    screen_width = withdraw_window.winfo_screenwidth()
-    screen_height = withdraw_window.winfo_screenheight()
-    x = (screen_width - 400) // 2
-    y = (screen_height - 500) // 2
-    withdraw_window.geometry(f"400x500+{x}+{y}")
+    withdraw_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+    center_window(withdraw_window)
 
     # Title bar
     title_bar = tk.Frame(withdraw_window, bg='#34495e', height=30)

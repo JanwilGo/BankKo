@@ -11,13 +11,28 @@ DB_CONFIG = {
     'port': 3306
 }
 
+# Function to center window on screen
+def center_window(window):
+    window.update_idletasks()
+    width = window.winfo_width()
+    height = window.winfo_height()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
+
+# Function to handle button hover effects
+def on_enter(e):
+    e.widget['background'] = '#2c3e50'
+
+def on_leave(e):
+    e.widget['background'] = '#34495e'
+
 def show_transaction_history(user_id, back_func=None):
     print(f"\n[History] Loading transactions for user {user_id}")
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
-        cursor = conn.cursor(dictionary=True)  # Use dictionary cursor for clearer debugging
+        cursor = conn.cursor(dictionary=True)
         
-        # First verify user exists
         cursor.execute("SELECT user_id FROM users WHERE user_id = %s", (user_id,))
         if not cursor.fetchone():
             messagebox.showerror("Error", f"User ID {user_id} not found!")
@@ -25,25 +40,67 @@ def show_transaction_history(user_id, back_func=None):
 
         # Create window
         history_window = tk.Toplevel()
-        history_window.title(f"Transaction History (User {user_id})")
+        history_window.title("Transaction History")
         history_window.geometry("1100x600")
-        history_window.configure(bg="#f0f2f5")
+        history_window.configure(bg='#ffffff')
+        history_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+        center_window(history_window)
         
+        # Title bar
+        title_bar = tk.Frame(history_window, bg='#34495e', height=30)
+        title_bar.pack(fill=tk.X)
+        title_bar.bind('<Button-1>', lambda e: history_window.focus_set())
+        title_bar.bind('<B1-Motion>', lambda e: history_window.geometry(f'+{e.x_root}+{e.y_root}'))
+
+        # Close button
+        close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
+                            bd=0, padx=10, command=lambda: [history_window.destroy(), back_func() if back_func else None])
+        close_btn.pack(side=tk.RIGHT)
+        close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+        close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
+
         # Back button
         if back_func:
-            back_btn = tk.Button(history_window, text="Back", command=lambda: [history_window.destroy(), back_func()], bg="#2f80ed", fg="white", font=("Arial", 10, "bold"))
-            back_btn.pack(anchor="nw", padx=10, pady=10)
+            back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
+                               bd=0, padx=10, command=lambda: [history_window.destroy(), back_func()])
+            back_btn.pack(side=tk.LEFT)
+            back_btn.bind('<Enter>', on_enter)
+            back_btn.bind('<Leave>', on_leave)
         
-        # Header
-        header = tk.Frame(history_window, bg="#2f80ed", padx=20, pady=20)
-        header.pack(fill=tk.X, pady=(0, 20))
-        tk.Label(header, text="Transaction History", font=("Arial", 24, "bold"), fg="white", bg="#2f80ed").pack()
+        # Content
+        content = tk.Frame(history_window, bg='#ffffff', padx=40, pady=30)
+        content.pack(fill=tk.BOTH, expand=True)
+
+        # Title
+        tk.Label(
+            content,
+            text="Transaction History",
+            font=("Helvetica", 24, "bold"),
+            fg="#34495e",
+            bg="#ffffff"
+        ).pack(pady=(0, 30))
         
-        # Table Frame (with border and background)
-        table_outer = tk.Frame(history_window, bg="#f0f2f5", padx=20, pady=10)
+        # Table Frame
+        table_outer = tk.Frame(content, bg='#ffffff')
         table_outer.pack(fill=tk.BOTH, expand=True)
-        table_box = tk.Frame(table_outer, bg="white", bd=1, relief=tk.SOLID)
+        table_box = tk.Frame(table_outer, bg='#ffffff', bd=0, highlightbackground="#bdc3c7", highlightthickness=1)
         table_box.pack(fill=tk.BOTH, expand=True)
+        
+        # Configure style
+        style = ttk.Style()
+        style.configure("Treeview", 
+                       background="#ffffff",
+                       foreground="#000000",
+                       fieldbackground="#ffffff",
+                       borderwidth=0,
+                       font=('Helvetica', 10))
+        style.configure("Treeview.Heading",
+                       background="#34495e",
+                       foreground="#000000",
+                       relief="flat",
+                       font=('Helvetica', 10, 'bold'))
+        style.map("Treeview.Heading",
+                 background=[('active', '#2c3e50')])
         
         tree = ttk.Treeview(table_box, columns=("ID", "Type", "Direction", "Amount", "Sender", "Recipient", "Date"), show="headings")
         vsb = ttk.Scrollbar(table_box, orient="vertical", command=tree.yview)
@@ -69,7 +126,7 @@ def show_transaction_history(user_id, back_func=None):
         for col in ("ID", "Type", "Direction", "Amount", "Sender", "Recipient", "Date"):
             tree.column(col, anchor="center", width=140)
         
-        # Get transactions with error handling
+        # Get transactions
         try:
             cursor.execute("""
                 SELECT transaction_id, type, amount, user_id, recipient_id, created_at 
@@ -83,7 +140,6 @@ def show_transaction_history(user_id, back_func=None):
             print(f"[History] Found {len(transactions)} transactions")
             
             if not transactions:
-                # Show the treeview with no rows, but still display the table
                 pass
             else:
                 for i, txn in enumerate(transactions):
@@ -134,8 +190,8 @@ def show_transaction_history(user_id, back_func=None):
                         recipient,
                         txn['created_at'].strftime("%Y-%m-%d %H:%M:%S")
                     ), tags=(tag,))
-                tree.tag_configure('evenrow', background='#f7fafd')
-                tree.tag_configure('oddrow', background='#e3eaf3')
+                tree.tag_configure('evenrow', background='#ffffff')
+                tree.tag_configure('oddrow', background='#f8f9fa')
                 
         except mysql.connector.Error as err:
             print(f"[History] Query failed: {err}")

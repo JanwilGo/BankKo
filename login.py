@@ -4,6 +4,15 @@ import mysql.connector
 import dashboard  # Import the dashboard module
 import bcrypt
 
+# Function to center window on screen
+def center_window(window):
+    window.update_idletasks()
+    width = window.winfo_width()
+    height = window.winfo_height()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
+
 # Function to create a database connection
 def create_connection():
     return mysql.connector.connect(
@@ -53,19 +62,13 @@ def on_leave(e):
 
 # Initialize the main Tkinter window
 root = tk.Tk()
-root.title("BankKo Login")
+root.title("BanKo Login")
 root.geometry("400x500")
 root.resizable(False, False)
 root.configure(bg='#ffffff')
-root.overrideredirect(True)  # Remove window header
-
-# Center the window
-root.update_idletasks()  # Update "requested size" from geometry manager
-width = root.winfo_width()
-height = root.winfo_height()
-x = (root.winfo_screenwidth() // 2) - (width // 2)
-y = (root.winfo_screenheight() // 2) - (height // 2)
-root.geometry(f'{width}x{height}+{x}+{y}')
+root.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+center_window(root)
+# root.overrideredirect(True)  # Removed to restore normal window behavior
 
 # Create a frame for dragging the window
 title_bar = tk.Frame(root, bg='#34495e', height=30)
@@ -87,7 +90,7 @@ content.pack(fill=tk.BOTH, expand=True)
 # Logo/Title
 title_label = tk.Label(
     content,
-    text="BankKo",
+    text="BanKo",
     font=("Helvetica", 24, "bold"),
     fg="#34495e",
     bg="#ffffff"
