@@ -3,6 +3,8 @@ from tkinter import messagebox
 import mysql.connector
 import dashboard  # Import the dashboard module
 import bcrypt
+from loans_interest_checker import start_interest_checker
+start_interest_checker()
 
 # Function to center window on screen
 def center_window(window):

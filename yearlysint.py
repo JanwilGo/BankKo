@@ -48,7 +48,7 @@ def open_yearly_sint(user_id, back_func):
             conn = mysql.connector.connect(**DB_CONFIG)
             cursor = conn.cursor()
             cursor.execute("UPDATE users SET balance = balance + %s WHERE user_id = %s", (principal, user_id))
-            cursor.execute("INSERT INTO loans (user_id, principal, interest_rate, interest_type, total_due, status) VALUES (%s, %s, %s, %s, %s, %s)",
+            cursor.execute("INSERT INTO loans (user_id, principal, interest_rate, interest_type, total_due, status, last_interest_applied) VALUES (%s, %s, %s, %s, %s, %s, NOW())",
                 (user_id, principal, 6.0, 'yearly', total_due, 'debt'))
             conn.commit()
             cursor.close()
