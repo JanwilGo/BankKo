@@ -61,7 +61,7 @@ def open_time_travel_ui():
     # Loan ID entry
     id_frame = tk.Frame(root, bg="#ffffff")
     id_frame.pack(pady=5)
-    tk.Label(id_frame, text="Loan ID (optional):", font=("Helvetica", 12), bg="#ffffff").pack(side=tk.LEFT)
+    tk.Label(id_frame, text="Loan ID (single):", font=("Helvetica", 12), bg="#ffffff").pack(side=tk.LEFT)
     loan_id_entry = tk.Entry(id_frame, font=("Helvetica", 12), width=10)
     loan_id_entry.pack(side=tk.LEFT, padx=10)
     # Button

@@ -16,6 +16,8 @@ def open_payloan(user_id, back_func):
     window.geometry("800x800")
     window.configure(bg="white")
     window.iconbitmap("")
+    window.resizable(False, False)  # Prevent window resizing
+    window.attributes('-toolwindow', True)  # Remove minimize/maximize buttons (Windows only)
     
     # Center the window
     window.update_idletasks()
@@ -51,7 +53,8 @@ def open_payloan(user_id, back_func):
         balance = 0.0
     
     tk.Label(balance_frame, text="Your Balance", font=("Arial", 14), bg="white").pack(side=tk.LEFT)
-    tk.Label(balance_frame, text=f"₱{balance:,.2f}", font=("Arial", 24, "bold"), fg="#2f80ed", bg="white").pack(side=tk.LEFT, padx=(10, 0))
+    balance_label = tk.Label(balance_frame, text=f"₱{balance:,.2f}", font=("Arial", 24, "bold"), fg="#2f80ed", bg="white")
+    balance_label.pack(side=tk.LEFT, padx=(10, 0))
 
     # Loan selection table
     table_frame = tk.Frame(main_frame, bg="white")
@@ -181,6 +184,18 @@ def open_payloan(user_id, back_func):
         # Auto-hide the banner after 2 seconds
         window.after(2000, banner.destroy)
 
+    def update_balance_display():
+        try:
+            conn = mysql.connector.connect(**DB_CONFIG)
+            cursor = conn.cursor()
+            cursor.execute("SELECT balance FROM users WHERE user_id = %s", (user_id,))
+            balance = cursor.fetchone()[0]
+            balance_label["text"] = f"₱{balance:,.2f}"
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error updating balance display: {e}")
+
     def pay_selected_loan():
         selected = tree.selection()
         if not selected:
@@ -217,7 +232,9 @@ def open_payloan(user_id, back_func):
             cursor.close()
             conn.close()
             show_success_banner(window, amount)
+            update_balance_display()  # Update balance display after payment
             load_loans()
+            amount_entry.delete(0, tk.END)  # Clear the amount entry
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
@@ -256,6 +273,7 @@ def open_payloan(user_id, back_func):
             cursor.close()
             conn.close()
             show_success_banner(window, remaining_due)
+            update_balance_display()  # Update balance display after payment
             load_loans()
         except Exception as e:
             messagebox.showerror("Error", str(e))

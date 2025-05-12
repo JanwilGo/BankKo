@@ -97,8 +97,7 @@ root.title("BanKo Create Account")
 root.geometry("500x650")
 root.resizable(False, False)
 root.configure(bg='#ffffff')
-# Remove or comment out overrideredirect(True) to keep the native window header
-# root.overrideredirect(True)
+root.attributes('-toolwindow', True)  # Remove minimize/maximize buttons (Windows only)
 center_window(root)
 
 # Custom title bar
