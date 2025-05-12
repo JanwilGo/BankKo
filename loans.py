@@ -28,15 +28,24 @@ def on_leave(e):
 def open_loans_dashboard(user_id, back_func=None):
     window = tk.Toplevel()
     window.title("Loans Dashboard")
-    window.geometry("900x600")
+    window.geometry("900x700")
     window.configure(bg="#ffffff")
     window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
-    center_window(window)
+    
+    # Center the window
+    window.update_idletasks()
+    width = window.winfo_width()
+    height = window.winfo_height()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
+    
     # Title bar
     title_bar = tk.Frame(window, bg='#34495e', height=30)
     title_bar.pack(fill=tk.X)
     title_bar.bind('<Button-1>', lambda e: window.focus_set())
     title_bar.bind('<B1-Motion>', lambda e: window.geometry(f'+{e.x_root}+{e.y_root}'))
+    
     # Back button
     if back_func:
         back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
@@ -44,9 +53,11 @@ def open_loans_dashboard(user_id, back_func=None):
         back_btn.pack(side=tk.LEFT)
         back_btn.bind('<Enter>', on_enter)
         back_btn.bind('<Leave>', on_leave)
+    
     # Content
     content = tk.Frame(window, bg='#ffffff', padx=40, pady=30)
     content.pack(fill=tk.BOTH, expand=True)
+    
     # Title
     tk.Label(
         content,
@@ -55,6 +66,7 @@ def open_loans_dashboard(user_id, back_func=None):
         fg="#34495e",
         bg="#ffffff"
     ).pack(pady=(0, 30), anchor="w")
+    
     # Account Balance
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -65,19 +77,24 @@ def open_loans_dashboard(user_id, back_func=None):
         conn.close()
     except Exception:
         balance = 0.0
+    
     balance_frame = tk.Frame(content, bg="#ffffff")
     balance_frame.pack(fill=tk.X, pady=(0, 10))
     tk.Label(balance_frame, text="Your Balance", font=("Helvetica", 14), bg="#ffffff").pack(anchor="w", side=tk.LEFT)
     tk.Label(balance_frame, text=f"₱{balance:,.2f}", font=("Helvetica", 24, "bold"), fg="#2f80ed", bg="#ffffff").pack(anchor="w", pady=(0, 10), side=tk.LEFT)
+    
     payloan_btn = tk.Button(balance_frame, text="Pay Loan", bg="#34495e", fg="white", font=("Helvetica", 12, "bold"), relief=tk.FLAT, padx=20, pady=8, command=lambda: [window.destroy(), open_payloan(user_id, lambda: open_loans_dashboard(user_id, back_func))])
     payloan_btn.pack(side=tk.RIGHT, padx=10, pady=5)
     payloan_btn.bind('<Enter>', on_enter)
     payloan_btn.bind('<Leave>', on_leave)
-    # Loans Table
+    
+    # Loans Table with fixed height
     table_outer = tk.Frame(content, bg='#ffffff')
-    table_outer.pack(fill=tk.BOTH, expand=True)
+    table_outer.pack(fill=tk.BOTH, expand=True)  # Changed to BOTH and True to allow vertical expansion
+    
     table_box = tk.Frame(table_outer, bg='#ffffff', bd=0, highlightbackground="#bdc3c7", highlightthickness=1)
     table_box.pack(fill=tk.BOTH, expand=True)
+    
     columns = ("Loan ID", "Principal", "Interest Rate", "Type", "Total Due", "Status", "Created At")
     style = ttk.Style()
     style.configure("Treeview", 
@@ -85,6 +102,7 @@ def open_loans_dashboard(user_id, back_func=None):
                    foreground="#000000",
                    fieldbackground="#ffffff",
                    borderwidth=0,
+                   rowheight=30,
                    font=('Helvetica', 10))
     style.configure("Treeview.Heading",
                    background="#34495e",
@@ -93,7 +111,8 @@ def open_loans_dashboard(user_id, back_func=None):
                    font=('Helvetica', 10, 'bold'))
     style.map("Treeview.Heading",
              background=[('active', '#2c3e50')])
-    tree = ttk.Treeview(table_box, columns=columns, show="headings")
+    
+    tree = ttk.Treeview(table_box, columns=columns, show="headings", height=10)  # Fixed height of 10 rows
     vsb = ttk.Scrollbar(table_box, orient="vertical", command=tree.yview)
     hsb = ttk.Scrollbar(table_box, orient="horizontal", command=tree.xview)
     tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)

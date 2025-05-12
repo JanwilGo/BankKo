@@ -64,7 +64,7 @@ def on_leave(e):
 
 # Initialize the main Tkinter window
 root = tk.Tk()
-root.title("KoBank - Login")
+root.title("BanKo Login")
 root.geometry("400x500")
 root.resizable(False, False)
 root.configure(bg='#ffffff')
@@ -84,7 +84,7 @@ content = tk.Frame(root, bg='#ffffff', padx=40, pady=30)
 content.pack(fill=tk.BOTH, expand=True)
 
 # Add the section header to the content area, centered and above the email field
-section_header = tk.Label(content, text="KoBank - Login", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
+section_header = tk.Label(content, text="BanKo Login", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
 section_header.pack(pady=(0, 30))
 
 # Username

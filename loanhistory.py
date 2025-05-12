@@ -14,7 +14,16 @@ def open_loanhistory(user_id, back_func):
     window = tk.Toplevel()
     window.title("Loan Payment History")
     window.geometry("600x400")
-    window.configure(bg="#ffffff")
+    window.configure(bg="white")
+    
+    # Center the window
+    window.update_idletasks()
+    width = window.winfo_width()
+    height = window.winfo_height()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
+    
     # Title bar
     title_bar = tk.Frame(window, bg='#34495e', height=30)
     title_bar.pack(fill=tk.X)
@@ -25,14 +34,31 @@ def open_loanhistory(user_id, back_func):
     back_btn.pack(side=tk.LEFT)
     back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
     back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
-    table_frame = tk.Frame(window, bg="#f0f2f5")
+    # Main content
+    table_frame = tk.Frame(window, bg="white")
     table_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+    
+    # Configure table style
+    style = ttk.Style()
+    style.configure("Treeview", background="white", foreground="black", fieldbackground="white", rowheight=30)
+    style.configure("Treeview.Heading", background="#34495e", foreground="black", font=('Arial', 10, 'bold'))
+    
     columns = ("Payment ID", "Loan ID", "Amount", "Paid At")
     tree = ttk.Treeview(table_frame, columns=columns, show="headings")
-    for col in columns:
-        tree.heading(col, text=col)
-        tree.column(col, anchor=tk.CENTER, width=120)
+    
+    # Configure columns
+    tree.heading("Payment ID", text="Payment ID", anchor=tk.CENTER)
+    tree.heading("Loan ID", text="Loan ID", anchor=tk.CENTER)
+    tree.heading("Amount", text="Amount", anchor=tk.CENTER)
+    tree.heading("Paid At", text="Paid At", anchor=tk.CENTER)
+    
+    tree.column("Payment ID", width=120, anchor=tk.CENTER)
+    tree.column("Loan ID", width=120, anchor=tk.CENTER)
+    tree.column("Amount", width=150, anchor=tk.CENTER)
+    tree.column("Paid At", width=170, anchor=tk.CENTER)
+    
     tree.pack(fill=tk.BOTH, expand=True)
+    
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor(dictionary=True)
@@ -48,4 +74,5 @@ def open_loanhistory(user_id, back_func):
         conn.close()
     except Exception as e:
         messagebox.showerror("Database Error", str(e))
+    
     window.mainloop() 

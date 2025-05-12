@@ -13,19 +13,33 @@ DB_CONFIG = {
 def open_payloan(user_id, back_func):
     window = tk.Toplevel()
     window.title("Pay Loan")
-    window.geometry("600x650")
-    window.configure(bg="#ffffff")
-    # Title bar
+    window.geometry("800x800")
+    window.configure(bg="white")
+    window.iconbitmap("")
+    
+    # Center the window
+    window.update_idletasks()
+    width = window.winfo_width()
+    height = window.winfo_height()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
+    
+    # Blue bar at the top
     title_bar = tk.Frame(window, bg='#34495e', height=30)
     title_bar.pack(fill=tk.X)
-    title_bar.bind('<Button-1>', lambda e: window.focus_set())
-    title_bar.bind('<B1-Motion>', lambda e: window.geometry(f'+{e.x_root}+{e.y_root}'))
-    # Back button
+    
+    # Back button in blue bar
     back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [window.destroy(), back_func()])
     back_btn.pack(side=tk.LEFT)
-    back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
-    back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
-    # Fetch and show balance
+    
+    # Main content
+    main_frame = tk.Frame(window, bg="white")
+    main_frame.pack(fill=tk.BOTH, expand=True, padx=40, pady=20)
+    
+    # Balance display
+    balance_frame = tk.Frame(main_frame, bg="white")
+    balance_frame.pack(fill=tk.X, pady=(0, 10))
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
@@ -35,63 +49,138 @@ def open_payloan(user_id, back_func):
         conn.close()
     except Exception:
         balance = 0.0
-    balance_frame = tk.Frame(window, bg="#ffffff")
-    balance_frame.pack(fill=tk.X, pady=(0, 10))
-    tk.Label(balance_frame, text="Your Balance", font=("Helvetica", 14), bg="#ffffff").pack(anchor="w", side=tk.LEFT, padx=(20,0))
-    tk.Label(balance_frame, text=f"₱{balance:,.2f}", font=("Helvetica", 24, "bold"), fg="#2f80ed", bg="#ffffff").pack(anchor="w", pady=(0, 10), side=tk.LEFT)
-    # Table Frame (boxed look)
-    table_outer = tk.Frame(window, bg="#ffffff", padx=20, pady=10)
-    table_outer.pack(fill=tk.BOTH, expand=True)
-    table_box = tk.Frame(table_outer, bg="#ffffff", bd=0, highlightbackground="#bdc3c7", highlightthickness=1)
-    table_box.pack(fill=tk.BOTH, expand=True)
+    
+    tk.Label(balance_frame, text="Your Balance", font=("Arial", 14), bg="white").pack(side=tk.LEFT)
+    tk.Label(balance_frame, text=f"₱{balance:,.2f}", font=("Arial", 24, "bold"), fg="#2f80ed", bg="white").pack(side=tk.LEFT, padx=(10, 0))
+
+    # Loan selection table
+    table_frame = tk.Frame(main_frame, bg="white")
+    table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+    
     columns = ("Loan ID", "Total Due", "Status")
+    tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=6)
+    
     style = ttk.Style()
     style.configure("Treeview", 
-                   background="#ffffff",
-                   foreground="#000000",
-                   fieldbackground="#ffffff",
+                   background="white",
+                   foreground="black",
+                   fieldbackground="white",
                    borderwidth=0,
-                   font=('Helvetica', 10))
+                   font=('Arial', 10),
+                   rowheight=30)
     style.configure("Treeview.Heading",
                    background="#34495e",
-                   foreground="#000000",
+                   foreground="black",
                    relief="flat",
-                   font=('Helvetica', 10, 'bold'))
+                   font=('Arial', 10, 'bold'))
     style.map("Treeview.Heading",
              background=[('active', '#2c3e50')])
-    tree = ttk.Treeview(table_box, columns=columns, show="headings")
-    for col in columns:
-        tree.heading(col, text=col)
-        tree.column(col, anchor=tk.CENTER, width=140)
-    tree.pack(fill=tk.BOTH, expand=True)
+    
+    # Configure column widths and alignments
+    tree.heading("Loan ID", text="Loan ID", anchor=tk.CENTER)
+    tree.heading("Total Due", text="Total Due", anchor=tk.CENTER)
+    tree.heading("Status", text="Status", anchor=tk.CENTER)
+    
+    tree.column("Loan ID", width=200, anchor=tk.CENTER)
+    tree.column("Total Due", width=300, anchor=tk.CENTER)
+    tree.column("Status", width=200, anchor=tk.CENTER)
+    
     def load_loans():
         tree.delete(*tree.get_children())
         try:
             conn = mysql.connector.connect(**DB_CONFIG)
             cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM loans WHERE user_id = %s AND status = 'debt'", (user_id,))
-            for loan in cursor.fetchall():
+            for i, loan in enumerate(cursor.fetchall()):
                 cursor2 = conn.cursor()
                 cursor2.execute("SELECT COALESCE(SUM(amount), 0) FROM loan_payments WHERE loan_id = %s", (loan['loan_id'],))
                 paid = cursor2.fetchone()[0]
                 cursor2.close()
                 remaining_due = max(loan['total_due'] - paid, 0)
-                tree.insert("", "end", values=(loan['loan_id'], f"₱{remaining_due:,.2f}", loan['status'].capitalize()))
+                tag = 'evenrow' if i % 2 == 0 else 'oddrow'
+                status_tag = 'debt' if loan['status'] == 'debt' else 'paid'
+                tree.insert("", "end", values=(
+                    loan['loan_id'],
+                    f"₱{remaining_due:,.2f}",
+                    loan['status'].capitalize()
+                ), tags=(tag, status_tag))
             cursor.close()
             conn.close()
         except Exception as e:
             messagebox.showerror("Database Error", str(e))
+    
+    # Configure row tags for alternating colors and status colors
+    tree.tag_configure('evenrow', background='white')
+    tree.tag_configure('oddrow', background='#f8f9fa')  # Light gray for odd rows
+    tree.tag_configure('debt', foreground='red')
+    tree.tag_configure('paid', foreground='black')
+    
     load_loans()
-    # Amount Entry Frame (boxed look)
-    entry_frame = tk.Frame(window, bg="#ffffff")
-    entry_frame.pack(fill=tk.X, pady=(0, 10))
-    tk.Label(entry_frame, text="Amount to pay:", font=("Helvetica", 12), bg="#ffffff").pack(pady=5)
-    amount_entry = tk.Entry(entry_frame, font=("Helvetica", 14))
-    amount_entry.pack(pady=5, padx=20, fill=tk.X)
-    pay_btn = tk.Button(entry_frame, text="Pay Loan", command=lambda: pay_selected_loan(), bg="#2ecc71", fg="white", font=("Helvetica", 14, "bold"), bd=0, padx=20, pady=10, cursor="hand2")
-    pay_btn.pack(pady=10)
-    pay_btn.bind('<Enter>', lambda e: pay_btn.configure(bg='#27ae60'))
-    pay_btn.bind('<Leave>', lambda e: pay_btn.configure(bg='#2ecc71'))
+    tree.pack(fill=tk.X, padx=5)
+
+    # Amount entry and numpad
+    entry_frame = tk.Frame(main_frame, bg="white")
+    entry_frame.pack(fill=tk.X, pady=10)
+    
+    tk.Label(entry_frame, text="Amount to pay:", font=("Arial", 13), bg="white").pack()
+    amount_entry = tk.Entry(entry_frame, font=("Arial", 15), justify="center", width=18)
+    amount_entry.pack(pady=5)
+
+    # Numpad frame
+    numpad_frame = tk.Frame(entry_frame, bg="white")
+    numpad_frame.pack(pady=10)
+
+    def add_digit(digit):
+        current = amount_entry.get()
+        amount_entry.delete(0, tk.END)
+        amount_entry.insert(0, current + str(digit))
+
+    def backspace():
+        current = amount_entry.get()
+        amount_entry.delete(0, tk.END)
+        amount_entry.insert(0, current[:-1])
+
+    # Create numpad buttons
+    buttons = [
+        ['1', '2', '3'],
+        ['4', '5', '6'],
+        ['7', '8', '9'],
+        ['0', '<']
+    ]
+
+    for i, row in enumerate(buttons):
+        for j, digit in enumerate(row):
+            if digit == '<':
+                btn = tk.Button(numpad_frame, text=digit, width=5, height=2, 
+                              command=backspace, bg="#34495e", fg="white",
+                              font=("Arial", 12))
+            else:
+                btn = tk.Button(numpad_frame, text=digit, width=5, height=2,
+                              command=lambda d=digit: add_digit(d), bg="#34495e", fg="white",
+                              font=("Arial", 12))
+            btn.grid(row=i, column=j, padx=2, pady=2)
+
+    def show_success_banner(window, amount):
+        # Create a banner frame at the top of the window
+        banner = tk.Frame(window, bg="#4CAF50")  # Green background
+        banner.pack(fill=tk.X)
+        banner.place(relx=0.5, rely=0.1, anchor="n")  # Position below the title bar
+        
+        # Success message
+        message = tk.Label(
+            banner,
+            text=f"Successfully paid ₱{amount:,.2f}!",
+            font=("Arial", 12, "bold"),
+            fg="white",
+            bg="#4CAF50",
+            padx=20,
+            pady=10
+        )
+        message.pack()
+        
+        # Auto-hide the banner after 2 seconds
+        window.after(2000, banner.destroy)
+
     def pay_selected_loan():
         selected = tree.selection()
         if not selected:
@@ -127,11 +216,11 @@ def open_payloan(user_id, back_func):
             conn.commit()
             cursor.close()
             conn.close()
+            show_success_banner(window, amount)
             load_loans()
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    # Add 'Pay Exact Amount' button at the bottom
     def pay_exact_amount():
         selected = tree.selection()
         if not selected:
@@ -166,11 +255,31 @@ def open_payloan(user_id, back_func):
             conn.commit()
             cursor.close()
             conn.close()
+            show_success_banner(window, remaining_due)
             load_loans()
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-    pay_exact_btn = tk.Button(window, text="Pay Exact Amount", command=pay_exact_amount, bg="#34495e", fg="white", font=("Helvetica", 14, "bold"), bd=0, padx=20, pady=10, cursor="hand2")
-    pay_exact_btn.pack(side=tk.BOTTOM, fill=tk.X, padx=40, pady=20)
+    # Button frame for consistent width
+    button_frame = tk.Frame(main_frame, bg="white")
+    button_frame.pack(fill=tk.X, pady=5)
+
+    # Pay Loan button
+    pay_btn = tk.Button(button_frame, text="Pay Loan", command=pay_selected_loan,
+                     bg="#2C3E50", fg="white",
+                     font=("Arial", 12),
+                     relief=tk.FLAT,
+                     width=20,
+                     height=2)
+    pay_btn.pack(pady=(5,2), expand=True)
+
+    # Pay Exact Amount button
+    pay_exact_btn = tk.Button(button_frame, text="Pay Exact Amount", command=pay_exact_amount,
+                           bg="#2C3E50", fg="white",
+                           font=("Arial", 12),
+                           relief=tk.FLAT,
+                           width=20,
+                           height=2)
+    pay_exact_btn.pack(pady=(2,5), expand=True)
 
     window.mainloop() 

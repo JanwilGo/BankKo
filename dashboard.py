@@ -1,11 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
-from transactionhistory import show_transaction_history  # Make sure this module exists
-from transfer import open_transfer_window  # Import transfer window
-from loans import open_loans_dashboard  # Import loans dashboard
-from profile import open_profile  # Import profile window
+from transactionhistory import show_transaction_history
+from transfer import open_transfer
+from loans import open_loans_dashboard
+from profile import open_profile
 from loans_interest_checker import start_interest_checker
+from deposit import open_deposit
+from withdraw import open_withdraw
 
 # Function to handle button hover effects
 def on_enter(e):
@@ -97,7 +99,7 @@ def center_window(window):
 # Function to open the dashboard with user's name
 def open_dashboard(first_name, user_id):
     dashboard_window = tk.Toplevel()
-    dashboard_window.title("BankKo Dashboard")
+    dashboard_window.title("BanKo Dashboard")
     dashboard_window.geometry("800x600")
     dashboard_window.resizable(False, False)
     dashboard_window.configure(bg='#ffffff')
@@ -178,7 +180,7 @@ def open_dashboard(first_name, user_id):
     deposit_button = tk.Button(
         button_frame,
         text="Deposit",
-        command=lambda: [dashboard_window.destroy(), open_deposit_window(user_id, balance_label, first_name, lambda: open_dashboard(first_name, user_id))],
+        command=lambda: [dashboard_window.destroy(), open_deposit(user_id, balance_label, lambda: open_dashboard(first_name, user_id))],
         bg="#34495e",
         fg="white",
         font=("Helvetica", 12),
@@ -195,7 +197,7 @@ def open_dashboard(first_name, user_id):
     withdraw_button = tk.Button(
         button_frame,
         text="Withdraw",
-        command=lambda: [dashboard_window.destroy(), open_withdraw_window(user_id, balance_label, first_name, lambda: open_dashboard(first_name, user_id))],
+        command=lambda: [dashboard_window.destroy(), open_withdraw(user_id, balance_label, lambda: open_dashboard(first_name, user_id))],
         bg="#34495e",
         fg="white",
         font=("Helvetica", 12),
@@ -212,7 +214,7 @@ def open_dashboard(first_name, user_id):
     transfer_button = tk.Button(
         button_frame,
         text="Transfer",
-        command=lambda: [dashboard_window.destroy(), open_transfer_window(user_id, balance_label, first_name, lambda: open_dashboard(first_name, user_id))],
+        command=lambda: [dashboard_window.destroy(), open_transfer(user_id, balance_label, lambda: open_dashboard(first_name, user_id))],
         bg="#34495e",
         fg="white",
         font=("Helvetica", 12),
@@ -265,150 +267,6 @@ def open_dashboard(first_name, user_id):
 
     # Fetch and display the current balance
     update_balance(user_id, balance_label)
-
-# Function to open deposit window
-def open_deposit_window(user_id, balance_label, first_name, back_func):
-    deposit_window = tk.Toplevel()
-    deposit_window.title("Deposit Money")
-    deposit_window.geometry("400x500")
-    deposit_window.configure(bg='#ffffff')
-    deposit_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
-    center_window(deposit_window)
-
-    # Title bar
-    title_bar = tk.Frame(deposit_window, bg='#34495e', height=30)
-    title_bar.pack(fill=tk.X)
-    title_bar.bind('<Button-1>', lambda e: deposit_window.focus_set())
-    title_bar.bind('<B1-Motion>', lambda e: deposit_window.geometry(f'+{e.x_root}+{e.y_root}'))
-
-    # Back button
-    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
-                        bd=0, padx=10, command=lambda: [deposit_window.destroy(), back_func()])
-    back_btn.pack(side=tk.LEFT)
-    back_btn.bind('<Enter>', on_enter)
-    back_btn.bind('<Leave>', on_leave)
-
-    # Content
-    content = tk.Frame(deposit_window, bg='#ffffff', padx=40, pady=30)
-    content.pack(fill=tk.BOTH, expand=True)
-
-    # Title
-    tk.Label(
-        content,
-        text="Deposit Money",
-        font=("Helvetica", 24, "bold"),
-        fg="#34495e",
-        bg="#ffffff"
-    ).pack(pady=(0, 30))
-
-    # Amount label
-    tk.Label(
-        content,
-        text="Amount to Deposit",
-        font=("Helvetica", 10),
-        fg="#7f8c8d",
-        bg="#ffffff"
-    ).pack(anchor="w")
-
-    # Amount entry
-    amount_entry = tk.Entry(
-        content,
-        font=("Helvetica", 12),
-        bd=0,
-        highlightthickness=1,
-        highlightbackground="#bdc3c7",
-        highlightcolor="#3498db"
-    )
-    amount_entry.pack(pady=(5, 20), fill=tk.X)
-
-    # Deposit button
-    deposit_button = tk.Button(
-        content,
-        text="Deposit",
-        command=lambda: [deposit_action(amount_entry.get(), user_id), deposit_window.destroy(), back_func()],
-        bg="#34495e",
-        fg="white",
-        font=("Helvetica", 12),
-        bd=0,
-        padx=20,
-        pady=10,
-        cursor="hand2"
-    )
-    deposit_button.pack(fill=tk.X, pady=(20, 0))
-    deposit_button.bind('<Enter>', on_enter)
-    deposit_button.bind('<Leave>', on_leave)
-
-# Function to open withdraw window
-def open_withdraw_window(user_id, balance_label, first_name, back_func):
-    withdraw_window = tk.Toplevel()
-    withdraw_window.title("Withdraw Money")
-    withdraw_window.geometry("400x500")
-    withdraw_window.configure(bg='#ffffff')
-    withdraw_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
-    center_window(withdraw_window)
-
-    # Title bar
-    title_bar = tk.Frame(withdraw_window, bg='#34495e', height=30)
-    title_bar.pack(fill=tk.X)
-    title_bar.bind('<Button-1>', lambda e: withdraw_window.focus_set())
-    title_bar.bind('<B1-Motion>', lambda e: withdraw_window.geometry(f'+{e.x_root}+{e.y_root}'))
-
-    # Back button
-    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
-                        bd=0, padx=10, command=lambda: [withdraw_window.destroy(), back_func()])
-    back_btn.pack(side=tk.LEFT)
-    back_btn.bind('<Enter>', on_enter)
-    back_btn.bind('<Leave>', on_leave)
-
-    # Content
-    content = tk.Frame(withdraw_window, bg='#ffffff', padx=40, pady=30)
-    content.pack(fill=tk.BOTH, expand=True)
-
-    # Title
-    tk.Label(
-        content,
-        text="Withdraw Money",
-        font=("Helvetica", 24, "bold"),
-        fg="#34495e",
-        bg="#ffffff"
-    ).pack(pady=(0, 30))
-
-    # Amount label
-    tk.Label(
-        content,
-        text="Amount to Withdraw",
-        font=("Helvetica", 10),
-        fg="#7f8c8d",
-        bg="#ffffff"
-    ).pack(anchor="w")
-
-    # Amount entry
-    amount_entry = tk.Entry(
-        content,
-        font=("Helvetica", 12),
-        bd=0,
-        highlightthickness=1,
-        highlightbackground="#bdc3c7",
-        highlightcolor="#3498db"
-    )
-    amount_entry.pack(pady=(5, 20), fill=tk.X)
-
-    # Withdraw button
-    withdraw_button = tk.Button(
-        content,
-        text="Withdraw",
-        command=lambda: [withdraw_action(amount_entry.get(), user_id), withdraw_window.destroy(), back_func()],
-        bg="#34495e",
-        fg="white",
-        font=("Helvetica", 12),
-        bd=0,
-        padx=20,
-        pady=10,
-        cursor="hand2"
-    )
-    withdraw_button.pack(fill=tk.X, pady=(20, 0))
-    withdraw_button.bind('<Enter>', on_enter)
-    withdraw_button.bind('<Leave>', on_leave)
 
 # Function to update the balance on the dashboard
 def update_balance(user_id, balance_label):

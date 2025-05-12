@@ -93,7 +93,7 @@ def on_leave(e):
 
 # UI setup
 root = tk.Tk()
-root.title("BanKo - Create Account")
+root.title("BanKo Create Account")
 root.geometry("500x650")
 root.resizable(False, False)
 root.configure(bg='#ffffff')
@@ -149,7 +149,7 @@ def labeled_entry(parent, label, show=None, height=1):
         return entry_widget
 
 # Add the section header to the content area, centered and above the first name field
-section_header = tk.Label(content, text="BanKo - Create Account", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
+section_header = tk.Label(content, text="BanKo Create Account", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
 section_header.pack(pady=(0, 20))
 
 entry_fname = labeled_entry(content, "First Name *")
