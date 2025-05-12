@@ -58,7 +58,7 @@ def show_transaction_history(user_id, back_func=None):
         close_btn.pack(side=tk.RIGHT)
         close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
         close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
-
+        
         # Back button
         if back_func:
             back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',

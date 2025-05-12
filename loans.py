@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 import mysql.connector
+from loans_interest_checker import start_interest_checker
 
 DB_CONFIG = {
     'host': 'sql12.freesqldatabase.com',
@@ -169,5 +170,6 @@ def open_loanhistory(user_id, back_func):
 if __name__ == "__main__":
     root = tk.Tk()
     root.withdraw()
+    start_interest_checker()
     open_loans_dashboard(1)
     root.mainloop() 

@@ -66,9 +66,8 @@ root.title("BanKo Login")
 root.geometry("400x500")
 root.resizable(False, False)
 root.configure(bg='#ffffff')
-root.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+root.overrideredirect(True)  # Remove window header
 center_window(root)
-# root.overrideredirect(True)  # Removed to restore normal window behavior
 
 # Create a frame for dragging the window
 title_bar = tk.Frame(root, bg='#34495e', height=30)

@@ -4,6 +4,8 @@ import mysql.connector
 from transactionhistory import show_transaction_history  # Make sure this module exists
 from transfer import open_transfer_window  # Import transfer window
 from loans import open_loans_dashboard  # Import loans dashboard
+from profile import open_profile  # Import profile window
+from loans_interest_checker import start_interest_checker
 
 # Function to handle button hover effects
 def on_enter(e):
@@ -121,6 +123,13 @@ def open_dashboard(first_name, user_id):
     logout_btn.pack(side=tk.RIGHT, padx=(0, 10))
     logout_btn.bind('<Enter>', on_enter)
     logout_btn.bind('<Leave>', on_leave)
+
+    # Profile button
+    profile_btn = tk.Button(title_bar, text='Profile', font=('Helvetica', 10), bg='#34495e', fg='white',
+                          bd=0, padx=10, command=lambda: [dashboard_window.destroy(), open_profile(user_id, first_name, lambda: open_dashboard(first_name, user_id))])
+    profile_btn.pack(side=tk.RIGHT, padx=(0, 10))
+    profile_btn.bind('<Enter>', on_enter)
+    profile_btn.bind('<Leave>', on_leave)
 
     # Main content frame
     content = tk.Frame(dashboard_window, bg='#ffffff', padx=40, pady=30)
@@ -441,4 +450,5 @@ def update_balance(user_id, balance_label):
     conn.close()
 
 if __name__ == "__main__":
+    start_interest_checker()
     open_dashboard("Janwil", 1)  # Replace with actual user_id for testing

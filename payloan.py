@@ -13,21 +13,51 @@ DB_CONFIG = {
 def open_payloan(user_id, back_func):
     window = tk.Toplevel()
     window.title("Pay Loan")
-    window.geometry("600x500")
-    window.configure(bg="#f0f2f5")
-    # Back button
-    back_btn = tk.Button(window, text="Back", command=lambda: [window.destroy(), back_func()], bg="#2f80ed", fg="white", font=("Arial", 10, "bold"))
+    window.geometry("600x650")
+    window.configure(bg="#ffffff")
+    # Back button (styled like dashboard)
+    back_btn = tk.Button(window, text="Back", command=lambda: [window.destroy(), back_func()], bg="#34495e", fg="white", font=("Helvetica", 10, "bold"), bd=0, padx=10, pady=5, cursor="hand2")
     back_btn.pack(anchor="nw", padx=10, pady=10)
+    back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
+    back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
     # Header
-    header = tk.Frame(window, bg="#2f80ed", padx=20, pady=15)
+    header = tk.Frame(window, bg="#34495e", padx=20, pady=15)
     header.pack(fill=tk.X)
-    tk.Label(header, text="Pay Loan", font=("Arial", 18, "bold"), fg="white", bg="#2f80ed").pack()
+    tk.Label(header, text="Pay Loan", font=("Helvetica", 20, "bold"), fg="white", bg="#34495e").pack()
+    # Fetch and show balance
+    try:
+        conn = mysql.connector.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        cursor.execute("SELECT balance FROM users WHERE user_id = %s", (user_id,))
+        balance = cursor.fetchone()[0]
+        cursor.close()
+        conn.close()
+    except Exception:
+        balance = 0.0
+    balance_frame = tk.Frame(window, bg="#ffffff")
+    balance_frame.pack(fill=tk.X, pady=(0, 10))
+    tk.Label(balance_frame, text="Your Balance", font=("Helvetica", 14), bg="#ffffff").pack(anchor="w", side=tk.LEFT, padx=(20,0))
+    tk.Label(balance_frame, text=f"₱{balance:,.2f}", font=("Helvetica", 24, "bold"), fg="#2f80ed", bg="#ffffff").pack(anchor="w", pady=(0, 10), side=tk.LEFT)
     # Table Frame (boxed look)
-    table_outer = tk.Frame(window, bg="#f0f2f5", padx=20, pady=10)
+    table_outer = tk.Frame(window, bg="#ffffff", padx=20, pady=10)
     table_outer.pack(fill=tk.BOTH, expand=True)
-    table_box = tk.Frame(table_outer, bg="white", bd=1, relief=tk.SOLID)
+    table_box = tk.Frame(table_outer, bg="#ffffff", bd=0, highlightbackground="#bdc3c7", highlightthickness=1)
     table_box.pack(fill=tk.BOTH, expand=True)
     columns = ("Loan ID", "Total Due", "Status")
+    style = ttk.Style()
+    style.configure("Treeview", 
+                   background="#ffffff",
+                   foreground="#000000",
+                   fieldbackground="#ffffff",
+                   borderwidth=0,
+                   font=('Helvetica', 10))
+    style.configure("Treeview.Heading",
+                   background="#34495e",
+                   foreground="#000000",
+                   relief="flat",
+                   font=('Helvetica', 10, 'bold'))
+    style.map("Treeview.Heading",
+             background=[('active', '#2c3e50')])
     tree = ttk.Treeview(table_box, columns=columns, show="headings")
     for col in columns:
         tree.heading(col, text=col)
@@ -52,13 +82,15 @@ def open_payloan(user_id, back_func):
             messagebox.showerror("Database Error", str(e))
     load_loans()
     # Amount Entry Frame (boxed look)
-    entry_frame = tk.Frame(window, bg="#f0f2f5")
+    entry_frame = tk.Frame(window, bg="#ffffff")
     entry_frame.pack(fill=tk.X, pady=(0, 10))
-    tk.Label(entry_frame, text="Amount to pay:", font=("Arial", 12), bg="#f0f2f5").pack(pady=5)
-    amount_entry = tk.Entry(entry_frame, font=("Arial", 14))
+    tk.Label(entry_frame, text="Amount to pay:", font=("Helvetica", 12), bg="#ffffff").pack(pady=5)
+    amount_entry = tk.Entry(entry_frame, font=("Helvetica", 14))
     amount_entry.pack(pady=5, padx=20, fill=tk.X)
-    pay_btn = tk.Button(entry_frame, text="Pay Loan", command=lambda: pay_selected_loan(), bg="#4CAF50", fg="white", font=("Arial", 14, "bold"))
+    pay_btn = tk.Button(entry_frame, text="Pay Loan", command=lambda: pay_selected_loan(), bg="#2ecc71", fg="white", font=("Helvetica", 14, "bold"), bd=0, padx=20, pady=10, cursor="hand2")
     pay_btn.pack(pady=10)
+    pay_btn.bind('<Enter>', lambda e: pay_btn.configure(bg='#27ae60'))
+    pay_btn.bind('<Leave>', lambda e: pay_btn.configure(bg='#2ecc71'))
     def pay_selected_loan():
         selected = tree.selection()
         if not selected:
