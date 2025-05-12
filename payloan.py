@@ -15,15 +15,24 @@ def open_payloan(user_id, back_func):
     window.title("Pay Loan")
     window.geometry("600x650")
     window.configure(bg="#ffffff")
-    # Back button (styled like dashboard)
-    back_btn = tk.Button(window, text="Back", command=lambda: [window.destroy(), back_func()], bg="#34495e", fg="white", font=("Helvetica", 10, "bold"), bd=0, padx=10, pady=5, cursor="hand2")
-    back_btn.pack(anchor="nw", padx=10, pady=10)
+    # Title bar
+    title_bar = tk.Frame(window, bg='#34495e', height=30)
+    title_bar.pack(fill=tk.X)
+    title_bar.bind('<Button-1>', lambda e: window.focus_set())
+    title_bar.bind('<B1-Motion>', lambda e: window.geometry(f'+{e.x_root}+{e.y_root}'))
+    # Back button
+    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [window.destroy(), back_func()])
+    back_btn.pack(side=tk.LEFT)
     back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
     back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
-    # Header
-    header = tk.Frame(window, bg="#34495e", padx=20, pady=15)
-    header.pack(fill=tk.X)
-    tk.Label(header, text="Pay Loan", font=("Helvetica", 20, "bold"), fg="white", bg="#34495e").pack()
+    # Title
+    title_label = tk.Label(title_bar, text="Pay Loan", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
+    title_label.pack(side=tk.LEFT, padx=10)
+    # Close button
+    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [window.destroy(), back_func()])
+    close_btn.pack(side=tk.RIGHT)
+    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
     # Fetch and show balance
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -129,4 +138,47 @@ def open_payloan(user_id, back_func):
             load_loans()
         except Exception as e:
             messagebox.showerror("Error", str(e))
+
+    # Add 'Pay Exact Amount' button at the bottom
+    def pay_exact_amount():
+        selected = tree.selection()
+        if not selected:
+            messagebox.showwarning("No Selection", "Select a loan to pay.")
+            return
+        loan_id = tree.item(selected[0])['values'][0]
+        try:
+            conn = mysql.connector.connect(**DB_CONFIG)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT total_due FROM loans WHERE loan_id = %s", (loan_id,))
+            loan = cursor.fetchone()
+            if not loan:
+                messagebox.showerror("Error", "Loan not found.")
+                return
+            cursor.execute("SELECT COALESCE(SUM(amount), 0) as paid FROM loan_payments WHERE loan_id = %s", (loan_id,))
+            paid = cursor.fetchone()['paid']
+            remaining_due = max(loan['total_due'] - paid, 0)
+            cursor.execute("SELECT balance FROM users WHERE user_id = %s", (user_id,))
+            balance = cursor.fetchone()['balance']
+            if remaining_due > balance:
+                messagebox.showerror("Error", "Insufficient balance.")
+                return
+            if remaining_due <= 0:
+                messagebox.showinfo("Info", "Loan is already fully paid.")
+                return
+            cursor.execute("UPDATE users SET balance = balance - %s WHERE user_id = %s", (remaining_due, user_id))
+            cursor.execute("INSERT INTO loan_payments (loan_id, user_id, amount) VALUES (%s, %s, %s)", (loan_id, user_id, remaining_due))
+            cursor.execute("SELECT SUM(amount) as paid FROM loan_payments WHERE loan_id = %s", (loan_id,))
+            paid = cursor.fetchone()['paid']
+            if paid >= loan['total_due']:
+                cursor.execute("UPDATE loans SET status = 'paid', paid_at = NOW() WHERE loan_id = %s", (loan_id,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            load_loans()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    pay_exact_btn = tk.Button(window, text="Pay Exact Amount", command=pay_exact_amount, bg="#34495e", fg="white", font=("Helvetica", 14, "bold"), bd=0, padx=20, pady=10, cursor="hand2")
+    pay_exact_btn.pack(side=tk.BOTTOM, fill=tk.X, padx=40, pady=20)
+
     window.mainloop() 

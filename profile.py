@@ -33,7 +33,7 @@ def get_user_details(user_id):
     return user
 
 def open_profile(user_id, first_name, back_callback):
-    profile_window = tk.Tk()
+    profile_window = tk.Toplevel()
     profile_window.title(f"Profile - {first_name}")
     profile_window.geometry("800x600")
     profile_window.resizable(False, False)
@@ -42,19 +42,26 @@ def open_profile(user_id, first_name, back_callback):
     center_window(profile_window)
 
     # Title bar
-    title_bar = tk.Frame(profile_window, bg='#34495e', height=40)
+    title_bar = tk.Frame(profile_window, bg='#34495e', height=30)
     title_bar.pack(fill=tk.X)
-    title_bar.pack_propagate(False)
+    title_bar.bind('<Button-1>', lambda e: profile_window.focus_set())
+    title_bar.bind('<B1-Motion>', lambda e: profile_window.geometry(f'+{e.x_root}+{e.y_root}'))
+
+    # Back button
+    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [profile_window.destroy(), back_callback()])
+    back_btn.pack(side=tk.LEFT)
+    back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
+    back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
 
     # Title
-    title_label = tk.Label(title_bar, text=f"Profile - {first_name}", font=('Helvetica', 12, 'bold'),
-                          bg='#34495e', fg='white')
+    title_label = tk.Label(title_bar, text=f"Profile - {first_name}", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
     title_label.pack(side=tk.LEFT, padx=10)
 
     # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Helvetica', 13), bg='#34495e', fg='white',
-                         bd=0, padx=10, command=lambda: [profile_window.destroy(), back_callback()])
+    close_btn = tk.Button(title_bar, text='×', font=('Helvetica', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [profile_window.destroy(), back_callback()])
     close_btn.pack(side=tk.RIGHT, padx=10)
+    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
 
     # Main content frame
     main_frame = tk.Frame(profile_window, bg='#ffffff')
@@ -102,30 +109,10 @@ def open_profile(user_id, first_name, back_callback):
                         command=lambda: [profile_window.destroy(), open_edit_profile(user_id, first_name, lambda: open_profile(user_id, first_name, back_callback))])
     edit_btn.pack(pady=20)
 
-    # Make window draggable
-    def start_move(event):
-        profile_window.x = event.x
-        profile_window.y = event.y
-
-    def stop_move(event):
-        profile_window.x = None
-        profile_window.y = None
-
-    def do_move(event):
-        deltax = event.x - profile_window.x
-        deltay = event.y - profile_window.y
-        x = profile_window.winfo_x() + deltax
-        y = profile_window.winfo_y() + deltay
-        profile_window.geometry(f"+{x}+{y}")
-
-    title_bar.bind("<ButtonPress-1>", start_move)
-    title_bar.bind("<ButtonRelease-1>", stop_move)
-    title_bar.bind("<B1-Motion>", do_move)
-
     profile_window.mainloop()
 
 def open_edit_profile(user_id, first_name, back_callback):
-    edit_window = tk.Tk()
+    edit_window = tk.Toplevel()
     edit_window.title(f"Edit Profile - {first_name}")
     edit_window.geometry("800x600")
     edit_window.resizable(False, False)
@@ -134,19 +121,26 @@ def open_edit_profile(user_id, first_name, back_callback):
     center_window(edit_window)
 
     # Title bar
-    title_bar = tk.Frame(edit_window, bg='#34495e', height=40)
+    title_bar = tk.Frame(edit_window, bg='#34495e', height=30)
     title_bar.pack(fill=tk.X)
-    title_bar.pack_propagate(False)
+    title_bar.bind('<Button-1>', lambda e: edit_window.focus_set())
+    title_bar.bind('<B1-Motion>', lambda e: edit_window.geometry(f'+{e.x_root}+{e.y_root}'))
+
+    # Back button
+    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [edit_window.destroy(), back_callback()])
+    back_btn.pack(side=tk.LEFT)
+    back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
+    back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
 
     # Title
-    title_label = tk.Label(title_bar, text=f"Edit Profile - {first_name}", font=('Helvetica', 12, 'bold'),
-                          bg='#34495e', fg='white')
+    title_label = tk.Label(title_bar, text=f"Edit Profile - {first_name}", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
     title_label.pack(side=tk.LEFT, padx=10)
 
     # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Helvetica', 13), bg='#34495e', fg='white',
-                         bd=0, padx=10, command=lambda: [edit_window.destroy(), back_callback()])
+    close_btn = tk.Button(title_bar, text='×', font=('Helvetica', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [edit_window.destroy(), back_callback()])
     close_btn.pack(side=tk.RIGHT, padx=10)
+    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
 
     # Main content frame
     main_frame = tk.Frame(edit_window, bg='#ffffff')
@@ -219,25 +213,5 @@ def open_edit_profile(user_id, first_name, back_callback):
                         bg='#2ecc71', fg='white', bd=0, padx=20, pady=10,
                         command=save_changes)
     save_btn.pack(pady=20)
-
-    # Make window draggable
-    def start_move(event):
-        edit_window.x = event.x
-        edit_window.y = event.y
-
-    def stop_move(event):
-        edit_window.x = None
-        edit_window.y = None
-
-    def do_move(event):
-        deltax = event.x - edit_window.x
-        deltay = event.y - edit_window.y
-        x = edit_window.winfo_x() + deltax
-        y = edit_window.winfo_y() + deltay
-        edit_window.geometry(f"+{x}+{y}")
-
-    title_bar.bind("<ButtonPress-1>", start_move)
-    title_bar.bind("<ButtonRelease-1>", stop_move)
-    title_bar.bind("<B1-Motion>", do_move)
 
     edit_window.mainloop() 

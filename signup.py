@@ -101,27 +101,38 @@ root.overrideredirect(True)
 center_window(root)
 
 # Custom title bar
-bar = tk.Frame(root, bg='#34495e', height=30)
-bar.pack(fill=tk.X)
-bar.bind('<Button-1>', lambda e: root.focus_set())
-bar.bind('<B1-Motion>', lambda e: root.geometry(f'+{e.x_root}+{e.y_root}'))
+header = tk.Frame(root, bg='#34495e', height=30)
+header.pack(fill=tk.X)
+header.bind('<Button-1>', lambda e: root.focus_set())
+header.bind('<B1-Motion>', lambda e: root.geometry(f'+{e.x_root}+{e.y_root}'))
 
 # Back button in title bar
-back_btn = tk.Button(bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
-                     bd=0, padx=10, command=go_to_login)
+back_btn = tk.Button(header, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=go_to_login)
 back_btn.pack(side=tk.LEFT)
 back_btn.bind('<Enter>', on_enter)
 back_btn.bind('<Leave>', on_leave)
 
-# Close button in title bar
-close_btn = tk.Button(bar, text='×', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=root.destroy)
-close_btn.pack(side=tk.RIGHT)
-close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
+# Main content frame with scrolling
+canvas = tk.Canvas(root, bg='#ffffff', highlightthickness=0)
+scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+canvas.configure(yscrollcommand=scrollbar.set)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-# Main content frame
-content = tk.Frame(root, bg='#ffffff', padx=40, pady=30)
-content.pack(fill=tk.BOTH, expand=True)
+content = tk.Frame(canvas, bg='#ffffff', padx=40, pady=30)
+content_id = canvas.create_window((0, 0), window=content, anchor="nw")
+
+def on_configure(event):
+    canvas.configure(scrollregion=canvas.bbox('all'))
+content.bind('<Configure>', on_configure)
+
+def on_canvas_configure(event):
+    canvas.itemconfig(content_id, width=event.width)
+canvas.bind('<Configure>', on_canvas_configure)
+
+def _on_mousewheel(event):
+    canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+canvas.bind_all('<MouseWheel>', _on_mousewheel)
 
 # Title
 tk.Label(content, text="Create Your BanKo Account", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff").pack(pady=(0, 20))
@@ -149,8 +160,17 @@ entry_confirm_password = labeled_entry(content, "Confirm Password *", show="*")
 entry_address = labeled_entry(content, "Address *", height=3)
 entry_phone = labeled_entry(content, "Phone Number *")
 
-register_button = tk.Button(content, text="Register", font=("Helvetica", 14, "bold"), bg="#34495e", fg="white",
-                            command=register, relief=tk.FLAT, pady=10, bd=0)
+# Add 'Already have an account? Log in' link above the Create Account button
+link_frame = tk.Frame(content, bg="#ffffff")
+link_frame.pack(pady=(10, 0), fill=tk.X)
+link_label = tk.Label(link_frame, text="Already have an account? ", font=("Helvetica", 10), bg="#ffffff", fg="#7f8c8d")
+link_label.pack(side=tk.LEFT)
+login_link = tk.Label(link_frame, text="Log in", font=("Helvetica", 10, "underline"), fg="#2f80ed", bg="#ffffff", cursor="hand2")
+login_link.pack(side=tk.LEFT)
+login_link.bind("<Button-1>", lambda e: go_to_login())
+
+register_button = tk.Button(content, text="Create Account", font=("Helvetica", 14, "bold"), bg="#34495e", fg="white",
+                            command=register, relief=tk.FLAT, pady=10, bd=0, height=2)
 register_button.pack(pady=20, fill=tk.X)
 register_button.bind('<Enter>', on_enter)
 register_button.bind('<Leave>', on_leave)

@@ -64,22 +64,23 @@ def on_leave(e):
 
 # Initialize the main Tkinter window
 root = tk.Tk()
-root.title("BanKo Login")
+root.title("KoBank - Login")
 root.geometry("400x500")
 root.resizable(False, False)
 root.configure(bg='#ffffff')
-root.overrideredirect(True)  # Remove window header
+# Remove overrideredirect(True) to keep the native window header
 center_window(root)
 
-# Create a frame for dragging the window
+# Custom title bar (dashboard style)
 title_bar = tk.Frame(root, bg='#34495e', height=30)
 title_bar.pack(fill=tk.X)
 title_bar.bind('<Button-1>', lambda e: root.focus_set())
 title_bar.bind('<B1-Motion>', lambda e: root.geometry(f'+{e.x_root}+{e.y_root}'))
-
+# Title label
+login_title_label = tk.Label(title_bar, text="KoBank - Login", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
+login_title_label.pack(side=tk.LEFT, padx=10)
 # Close button
-close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
-                     bd=0, padx=10, command=root.destroy)
+close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=root.destroy)
 close_btn.pack(side=tk.RIGHT)
 close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
 close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))

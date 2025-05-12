@@ -85,19 +85,21 @@ def open_transfer_window(user_id, balance_label, first_name, back_func):
     title_bar.bind('<Button-1>', lambda e: transfer_window.focus_set())
     title_bar.bind('<B1-Motion>', lambda e: transfer_window.geometry(f'+{e.x_root}+{e.y_root}'))
 
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
-                         bd=0, padx=10, command=lambda: [transfer_window.destroy(), back_func()])
-    close_btn.pack(side=tk.RIGHT)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
-
     # Back button
-    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
-                        bd=0, padx=10, command=lambda: [transfer_window.destroy(), back_func()])
+    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [transfer_window.destroy(), back_func()])
     back_btn.pack(side=tk.LEFT)
     back_btn.bind('<Enter>', on_enter)
     back_btn.bind('<Leave>', on_leave)
+
+    # Title
+    title_label = tk.Label(title_bar, text="Transfer Funds", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
+    title_label.pack(side=tk.LEFT, padx=10)
+
+    # Close button
+    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [transfer_window.destroy(), back_func()])
+    close_btn.pack(side=tk.RIGHT)
+    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
 
     # Content
     content = tk.Frame(transfer_window, bg='#ffffff', padx=40, pady=30)

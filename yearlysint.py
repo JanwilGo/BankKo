@@ -15,16 +15,27 @@ def open_yearly_sint(user_id, back_func):
     window.title("Yearly Simple Interest Loan")
     window.geometry("600x540")
     window.configure(bg="#f0f2f5")
+    # Dashboard-style title bar
+    title_bar = tk.Frame(window, bg='#34495e', height=30)
+    title_bar.pack(fill=tk.X)
+    title_bar.bind('<Button-1>', lambda e: window.focus_set())
+    title_bar.bind('<B1-Motion>', lambda e: window.geometry(f'+{e.x_root}+{e.y_root}'))
     # Back button
-    back_btn = tk.Button(window, text="Back", command=lambda: [window.destroy(), back_func()], bg="#2f80ed", fg="white", font=("Arial", 10, "bold"))
-    back_btn.pack(anchor="nw", padx=10, pady=10)
-    # Header
-    header = tk.Frame(window, bg="#2f80ed", padx=20, pady=18)
-    header.pack(fill=tk.X, pady=(0, 18))
-    tk.Label(header, text="Yearly Simple Interest Loan (6%)", font=("Arial", 20, "bold"), fg="white", bg="#2f80ed").pack()
+    back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [window.destroy(), back_func()])
+    back_btn.pack(side=tk.LEFT)
+    back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
+    back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
+    # Title
+    title_label = tk.Label(title_bar, text="KoBank - Yearly Simple Interest Loan (6%)", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
+    title_label.pack(side=tk.LEFT, padx=10)
+    # Close button
+    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=window.destroy)
+    close_btn.pack(side=tk.RIGHT)
+    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
+    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
     # Main content boxed
     main_box = tk.Frame(window, bg="white", bd=1, relief=tk.SOLID, padx=30, pady=30)
-    main_box.pack(padx=40, pady=10, fill=tk.BOTH, expand=True)
+    main_box.pack(padx=40, pady=30, fill=tk.BOTH, expand=True)
     tk.Label(main_box, text="Enter amount to borrow:", font=("Arial", 13), bg="white").pack(pady=(0, 10))
     amount_entry = tk.Entry(main_box, font=("Arial", 15), justify="center", width=18)
     amount_entry.pack(pady=5, ipadx=5, ipady=4)
