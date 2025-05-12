@@ -77,28 +77,15 @@ title_bar = tk.Frame(root, bg='#34495e', height=30)
 title_bar.pack(fill=tk.X)
 title_bar.bind('<Button-1>', lambda e: root.focus_set())
 title_bar.bind('<B1-Motion>', lambda e: root.geometry(f'+{e.x_root}+{e.y_root}'))
-# Title label
-login_title_label = tk.Label(title_bar, text="KoBank - Login", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
-login_title_label.pack(side=tk.LEFT, padx=10)
-# Close button
-close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=root.destroy)
-close_btn.pack(side=tk.RIGHT)
-close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
+# No back button, no title, no close button in the blue bar
 
 # Main content frame
 content = tk.Frame(root, bg='#ffffff', padx=40, pady=30)
 content.pack(fill=tk.BOTH, expand=True)
 
-# Logo/Title
-title_label = tk.Label(
-    content,
-    text="BanKo",
-    font=("Helvetica", 24, "bold"),
-    fg="#34495e",
-    bg="#ffffff"
-)
-title_label.pack(pady=(0, 30))
+# Add the section header to the content area, centered and above the email field
+section_header = tk.Label(content, text="KoBank - Login", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
+section_header.pack(pady=(0, 30))
 
 # Username
 tk.Label(content, text="Email", font=("Helvetica", 10), bg="#ffffff", fg="#7f8c8d").pack(anchor="w")

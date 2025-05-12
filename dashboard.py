@@ -110,13 +110,6 @@ def open_dashboard(first_name, user_id):
     title_bar.bind('<Button-1>', lambda e: dashboard_window.focus_set())
     title_bar.bind('<B1-Motion>', lambda e: dashboard_window.geometry(f'+{e.x_root}+{e.y_root}'))
 
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
-                         bd=0, padx=10, command=lambda: logout(dashboard_window))
-    close_btn.pack(side=tk.RIGHT)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
-
     # Logout button
     logout_btn = tk.Button(title_bar, text='Logout', font=('Helvetica', 10), bg='#34495e', fg='white',
                           bd=0, padx=10, command=lambda: logout(dashboard_window))
@@ -288,13 +281,6 @@ def open_deposit_window(user_id, balance_label, first_name, back_func):
     title_bar.bind('<Button-1>', lambda e: deposit_window.focus_set())
     title_bar.bind('<B1-Motion>', lambda e: deposit_window.geometry(f'+{e.x_root}+{e.y_root}'))
 
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
-                         bd=0, padx=10, command=lambda: [deposit_window.destroy(), back_func()])
-    close_btn.pack(side=tk.RIGHT)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
-
     # Back button
     back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
                         bd=0, padx=10, command=lambda: [deposit_window.destroy(), back_func()])
@@ -366,13 +352,6 @@ def open_withdraw_window(user_id, balance_label, first_name, back_func):
     title_bar.pack(fill=tk.X)
     title_bar.bind('<Button-1>', lambda e: withdraw_window.focus_set())
     title_bar.bind('<B1-Motion>', lambda e: withdraw_window.geometry(f'+{e.x_root}+{e.y_root}'))
-
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
-                         bd=0, padx=10, command=lambda: [withdraw_window.destroy(), back_func()])
-    close_btn.pack(side=tk.RIGHT)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
 
     # Back button
     back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',

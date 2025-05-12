@@ -37,12 +37,6 @@ def open_loans_dashboard(user_id, back_func=None):
     title_bar.pack(fill=tk.X)
     title_bar.bind('<Button-1>', lambda e: window.focus_set())
     title_bar.bind('<B1-Motion>', lambda e: window.geometry(f'+{e.x_root}+{e.y_root}'))
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
-                        bd=0, padx=10, command=lambda: [window.destroy(), back_func() if back_func else None])
-    close_btn.pack(side=tk.RIGHT)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
     # Back button
     if back_func:
         back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',

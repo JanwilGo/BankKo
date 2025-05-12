@@ -38,34 +38,22 @@ def open_profile(user_id, first_name, back_callback):
     profile_window.geometry("800x600")
     profile_window.resizable(False, False)
     profile_window.configure(bg='#ffffff')
-    profile_window.overrideredirect(True)
     center_window(profile_window)
 
-    # Title bar
+    # Blue bar at the top
     title_bar = tk.Frame(profile_window, bg='#34495e', height=30)
-    title_bar.pack(fill=tk.X)
-    title_bar.bind('<Button-1>', lambda e: profile_window.focus_set())
-    title_bar.bind('<B1-Motion>', lambda e: profile_window.geometry(f'+{e.x_root}+{e.y_root}'))
-
-    # Back button
+    title_bar.pack(fill=tk.X)  # No pady or padx
+    # Back button in blue bar
     back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [profile_window.destroy(), back_callback()])
     back_btn.pack(side=tk.LEFT)
-    back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
-    back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
-
-    # Title
-    title_label = tk.Label(title_bar, text=f"Profile - {first_name}", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
-    title_label.pack(side=tk.LEFT, padx=10)
-
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Helvetica', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [profile_window.destroy(), back_callback()])
-    close_btn.pack(side=tk.RIGHT, padx=10)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
 
     # Main content frame
     main_frame = tk.Frame(profile_window, bg='#ffffff')
     main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+    # Add section header to the content area, centered at the top
+    section_header = tk.Label(main_frame, text="Profile", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
+    section_header.pack(pady=(0, 20))
 
     # Get user details
     user_details = get_user_details(user_id)
@@ -117,34 +105,22 @@ def open_edit_profile(user_id, first_name, back_callback):
     edit_window.geometry("800x600")
     edit_window.resizable(False, False)
     edit_window.configure(bg='#ffffff')
-    edit_window.overrideredirect(True)
     center_window(edit_window)
 
-    # Title bar
+    # Blue bar at the top
     title_bar = tk.Frame(edit_window, bg='#34495e', height=30)
-    title_bar.pack(fill=tk.X)
-    title_bar.bind('<Button-1>', lambda e: edit_window.focus_set())
-    title_bar.bind('<B1-Motion>', lambda e: edit_window.geometry(f'+{e.x_root}+{e.y_root}'))
-
-    # Back button
+    title_bar.pack(fill=tk.X)  # No pady or padx
+    # Back button in blue bar
     back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [edit_window.destroy(), back_callback()])
     back_btn.pack(side=tk.LEFT)
-    back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
-    back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
-
-    # Title
-    title_label = tk.Label(title_bar, text=f"Edit Profile - {first_name}", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
-    title_label.pack(side=tk.LEFT, padx=10)
-
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Helvetica', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [edit_window.destroy(), back_callback()])
-    close_btn.pack(side=tk.RIGHT, padx=10)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
 
     # Main content frame
     main_frame = tk.Frame(edit_window, bg='#ffffff')
     main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+    # Add section header to the content area, centered at the top
+    section_header = tk.Label(main_frame, text="Edit Profile", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
+    section_header.pack(pady=(0, 20))
 
     # Get user details
     user_details = get_user_details(user_id)

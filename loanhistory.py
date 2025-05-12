@@ -25,14 +25,6 @@ def open_loanhistory(user_id, back_func):
     back_btn.pack(side=tk.LEFT)
     back_btn.bind('<Enter>', lambda e: back_btn.configure(bg='#2c3e50'))
     back_btn.bind('<Leave>', lambda e: back_btn.configure(bg='#34495e'))
-    # Title
-    title_label = tk.Label(title_bar, text="Loan Payment History", font=('Helvetica', 12, 'bold'), bg='#34495e', fg='white')
-    title_label.pack(side=tk.LEFT, padx=10)
-    # Close button
-    close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=lambda: [window.destroy(), back_func()])
-    close_btn.pack(side=tk.RIGHT)
-    close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-    close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
     table_frame = tk.Frame(window, bg="#f0f2f5")
     table_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
     columns = ("Payment ID", "Loan ID", "Amount", "Paid At")

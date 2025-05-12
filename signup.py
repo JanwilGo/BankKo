@@ -97,7 +97,8 @@ root.title("BanKo - Create Account")
 root.geometry("500x650")
 root.resizable(False, False)
 root.configure(bg='#ffffff')
-root.overrideredirect(True)
+# Remove or comment out overrideredirect(True) to keep the native window header
+# root.overrideredirect(True)
 center_window(root)
 
 # Custom title bar
@@ -105,7 +106,6 @@ header = tk.Frame(root, bg='#34495e', height=30)
 header.pack(fill=tk.X)
 header.bind('<Button-1>', lambda e: root.focus_set())
 header.bind('<B1-Motion>', lambda e: root.geometry(f'+{e.x_root}+{e.y_root}'))
-
 # Back button in title bar
 back_btn = tk.Button(header, text='←', font=('Arial', 13), bg='#34495e', fg='white', bd=0, padx=10, command=go_to_login)
 back_btn.pack(side=tk.LEFT)
@@ -134,9 +134,6 @@ def _on_mousewheel(event):
     canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 canvas.bind_all('<MouseWheel>', _on_mousewheel)
 
-# Title
-tk.Label(content, text="Create Your BanKo Account", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff").pack(pady=(0, 20))
-
 def labeled_entry(parent, label, show=None, height=1):
     field_frame = tk.Frame(parent, bg="#f8f9fa", bd=0, highlightbackground="#bdc3c7", highlightthickness=1)
     field_frame.pack(fill=tk.X, pady=6, padx=2, expand=True)
@@ -150,6 +147,10 @@ def labeled_entry(parent, label, show=None, height=1):
         entry_widget = tk.Text(field_frame, font=("Helvetica", 12), height=height, bg="white", relief=tk.FLAT, width=60, bd=0)
         entry_widget.pack(padx=8, pady=(2, 8), fill=tk.X)
         return entry_widget
+
+# Add the section header to the content area, centered and above the first name field
+section_header = tk.Label(content, text="BanKo - Create Account", font=("Helvetica", 20, "bold"), fg="#34495e", bg="#ffffff")
+section_header.pack(pady=(0, 20))
 
 entry_fname = labeled_entry(content, "First Name *")
 entry_mi = labeled_entry(content, "Middle Initial")
