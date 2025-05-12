@@ -43,29 +43,16 @@ def show_transaction_history(user_id, back_func=None):
         history_window.title("Transaction History")
         history_window.geometry("1100x600")
         history_window.configure(bg='#ffffff')
-        history_window.attributes('-toolwindow', True)  # Minimal title bar (Windows only)
+        history_window.resizable(False, False)  # Disable window resizing
+        
+        # Remove minimize/maximize buttons (Windows)
+        history_window.attributes('-toolwindow', 1)
+        
         center_window(history_window)
-        
-        # Title bar
-        title_bar = tk.Frame(history_window, bg='#34495e', height=30)
-        title_bar.pack(fill=tk.X)
-        title_bar.bind('<Button-1>', lambda e: history_window.focus_set())
-        title_bar.bind('<B1-Motion>', lambda e: history_window.geometry(f'+{e.x_root}+{e.y_root}'))
 
-        # Close button
-        close_btn = tk.Button(title_bar, text='×', font=('Arial', 13), bg='#34495e', fg='white',
-                            bd=0, padx=10, command=lambda: [history_window.destroy(), back_func() if back_func else None])
-        close_btn.pack(side=tk.RIGHT)
-        close_btn.bind('<Enter>', lambda e: close_btn.configure(bg='#e74c3c'))
-        close_btn.bind('<Leave>', lambda e: close_btn.configure(bg='#34495e'))
-        
-        # Back button
+        # Set up window close protocol
         if back_func:
-            back_btn = tk.Button(title_bar, text='←', font=('Arial', 13), bg='#34495e', fg='white',
-                               bd=0, padx=10, command=lambda: [history_window.destroy(), back_func()])
-            back_btn.pack(side=tk.LEFT)
-            back_btn.bind('<Enter>', on_enter)
-            back_btn.bind('<Leave>', on_leave)
+            history_window.protocol("WM_DELETE_WINDOW", lambda: [history_window.destroy(), back_func()])
         
         # Content
         content = tk.Frame(history_window, bg='#ffffff', padx=40, pady=30)
@@ -79,6 +66,16 @@ def show_transaction_history(user_id, back_func=None):
             fg="#34495e",
             bg="#ffffff"
         ).pack(pady=(0, 30))
+        
+        # Back button if needed
+        if back_func:
+            back_frame = tk.Frame(content, bg='#ffffff')
+            back_frame.pack(fill=tk.X, pady=(0, 20))
+            back_btn = tk.Button(back_frame, text='← Back', font=('Helvetica', 10), bg='#34495e', fg='white',
+                               bd=0, padx=10, pady=5, command=lambda: [history_window.destroy(), back_func()])
+            back_btn.pack(side=tk.LEFT)
+            back_btn.bind('<Enter>', on_enter)
+            back_btn.bind('<Leave>', on_leave)
         
         # Table Frame
         table_outer = tk.Frame(content, bg='#ffffff')

@@ -5,7 +5,6 @@ from transactionhistory import show_transaction_history
 from transfer import open_transfer
 from loans import open_loans_dashboard
 from profile import open_profile
-from loans_interest_checker import start_interest_checker
 from deposit import open_deposit
 from withdraw import open_withdraw
 
@@ -287,5 +286,4 @@ def update_balance(user_id, balance_label):
     conn.close()
 
 if __name__ == "__main__":
-    start_interest_checker()
     open_dashboard("Janwil", 1)  # Replace with actual user_id for testing
