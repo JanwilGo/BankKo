@@ -102,13 +102,60 @@ CREATE TABLE users (
 1. Clone the repository:
    ```bash
    git clone https://github.com/JanwilGo/BankKo
-   cd BanKo
+   cd BankKo
    ```
 
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
+
+## Running the code:
+ 1. Run the script:
+   ```bash
+   python login.py
+   ```
+
+### Testing the code:
+  ## Time Travel 
+
+- **Yearly**: Moves dates back by 366 days (leap year safe)
+- **Quarterly**: Moves dates back by 92 days
+
+## Loan Selection
+
+- **All Loans**: Leave the Loan ID field empty
+- **Single Loan**: Enter a specific loan ID
+
+## Database Impact
+
+The tool modifies two date fields in the loans table:
+- `created_at`: Loan creation date
+- `last_interest_applied`: Last interest calculation date
+
+## Example Use Cases
+
+1. **Testing Interest Calculations**
+   - Move loans back in time to test interest accrual
+   - Verify interest calculations for different loan ages
+
+2. **System Testing**
+   - Test how the system handles aged loans
+   - Verify loan lifecycle processes
+
+## Usage
+
+1. Run the script:
+   ```bash
+   python loans_time_travel.py
+   ```
+
+2. In the GUI window:
+   - Select time period (Yearly/Quarterly)
+   - Optionally enter a specific loan ID
+   - Click "Time Travel!"
+
+
 
 
 ## Acknowledgments
