@@ -54,6 +54,20 @@ def show_transaction_history(user_id, back_func=None):
         if back_func:
             history_window.protocol("WM_DELETE_WINDOW", lambda: [history_window.destroy(), back_func()])
         
+        # Title bar (matching dashboard style)
+        title_bar = tk.Frame(history_window, bg='#34495e', height=30)
+        title_bar.pack(fill=tk.X)
+        title_bar.bind('<Button-1>', lambda e: history_window.focus_set())
+        title_bar.bind('<B1-Motion>', lambda e: history_window.geometry(f'+{e.x_root}+{e.y_root}'))
+
+        # Back button in title bar
+        if back_func:
+            back_btn = tk.Button(title_bar, text='← Back', font=('Helvetica', 10), bg='#34495e', fg='white',
+                               bd=0, padx=10, command=lambda: [history_window.destroy(), back_func()])
+            back_btn.pack(side=tk.LEFT, padx=10)
+            back_btn.bind('<Enter>', on_enter)
+            back_btn.bind('<Leave>', on_leave)
+        
         # Content
         content = tk.Frame(history_window, bg='#ffffff', padx=40, pady=30)
         content.pack(fill=tk.BOTH, expand=True)
@@ -66,16 +80,6 @@ def show_transaction_history(user_id, back_func=None):
             fg="#34495e",
             bg="#ffffff"
         ).pack(pady=(0, 30))
-        
-        # Back button if needed
-        if back_func:
-            back_frame = tk.Frame(content, bg='#ffffff')
-            back_frame.pack(fill=tk.X, pady=(0, 20))
-            back_btn = tk.Button(back_frame, text='← Back', font=('Helvetica', 10), bg='#34495e', fg='white',
-                               bd=0, padx=10, pady=5, command=lambda: [history_window.destroy(), back_func()])
-            back_btn.pack(side=tk.LEFT)
-            back_btn.bind('<Enter>', on_enter)
-            back_btn.bind('<Leave>', on_leave)
         
         # Table Frame
         table_outer = tk.Frame(content, bg='#ffffff')
