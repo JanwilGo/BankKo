@@ -33,7 +33,67 @@ A modern banking application built with Python and Tkinter, featuring loan manag
   - Real-time balance updates
   - Success notifications
 
-## MySQL database DDL: (If you want to make an sql of your own)
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/JanwilGo/BankKo
+   cd BankKo
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Running the code:
+ 1. Run the script:
+   ```bash
+   python login.py
+   ```
+
+### Testing the code:
+  ## Time Travel 
+
+- **Yearly**: Moves dates back by 366 days (leap year safe)
+- **Quarterly**: Moves dates back by 92 days
+
+## Loan Selection
+
+- **All Loans**: Leave the Loan ID field empty
+- **Single Loan**: Enter a specific loan ID
+
+## Database Impact
+
+The tool modifies two date fields in the loans table:
+- `created_at`: Loan creation date
+- `last_interest_applied`: Last interest calculation date
+
+## Example Use Cases
+
+1. **Testing Interest Calculations**
+   - Move loans back in time to test interest accrual
+   - Verify interest calculations for different loan ages
+
+2. **System Testing**
+   - Test how the system handles aged loans
+   - Verify loan lifecycle processes
+
+## Usage
+
+1. Run the script:
+   ```bash
+   python loans_time_travel.py
+   ```
+
+2. In the GUI window:
+   - Select time period (Yearly/Quarterly)
+   - Optionally enter a specific loan ID
+   - Click "Time Travel!"
+
+
+
+## MySQL database DDL: (If you want to make an mysql db of your own)
 
 CREATE TABLE loan_payments (
   payment_id int(11) NOT NULL AUTO_INCREMENT,
@@ -97,71 +157,11 @@ CREATE TABLE users (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1
 
 
-## Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/JanwilGo/BankKo
-   cd BankKo
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Running the code:
- 1. Run the script:
-   ```bash
-   python login.py
-   ```
-
-### Testing the code:
-  ## Time Travel 
-
-- **Yearly**: Moves dates back by 366 days (leap year safe)
-- **Quarterly**: Moves dates back by 92 days
-
-## Loan Selection
-
-- **All Loans**: Leave the Loan ID field empty
-- **Single Loan**: Enter a specific loan ID
-
-## Database Impact
-
-The tool modifies two date fields in the loans table:
-- `created_at`: Loan creation date
-- `last_interest_applied`: Last interest calculation date
-
-## Example Use Cases
-
-1. **Testing Interest Calculations**
-   - Move loans back in time to test interest accrual
-   - Verify interest calculations for different loan ages
-
-2. **System Testing**
-   - Test how the system handles aged loans
-   - Verify loan lifecycle processes
-
-## Usage
-
-1. Run the script:
-   ```bash
-   python loans_time_travel.py
-   ```
-
-2. In the GUI window:
-   - Select time period (Yearly/Quarterly)
-   - Optionally enter a specific loan ID
-   - Click "Time Travel!"
-
-
-
-
 ## Acknowledgments
 
 - Built with Python 3.13
 - Uses Tkinter for GUI
 - MySQL for database management
+- Uses Bcrypt for encryption
 - Lev
 - JP
